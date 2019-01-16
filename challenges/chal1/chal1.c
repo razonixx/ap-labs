@@ -1,4 +1,5 @@
 #include<stdio.h>
+
 void ex1(char* list)
 {
     int c = 0;
