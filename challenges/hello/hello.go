@@ -4,22 +4,58 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+	"time"
 )
 
-func add(x int, y int) int{
+const pi = math.Pi
+const byt uint8 = 0
+
+func add(x int, y int) int {
 	return x + y
 }
 
-func swap(x string, y string, z int) (int, string, string){
+func swap(x string, y string, z int) (int, string, string) {
 	return z, y, x
 }
 
-func square(num int) (res int){
+func square(num int) (res int) {
 	res = num * num
 	return
 }
 
-func main(){
+func arr() {
+	var x, y, z int = 1, 2, 3
+	if y == 1 {
+		//var a, b, c = "js", "like", true
+		//d := "Implicit type like python, but only inside functinos"
+	}
+	w := 0
+	for i := 0; i < 10; i++ {
+		w += (x + y + z) * i
+	}
+
+	for w > 0 {
+		x++
+	}
+}
+
+func pow(x, n, lim float64) float64 {
+	// This if statement works like a for, it declares a variable (v) that is only visible inside the if itself and an else, if it had one
+	if v := math.Pow(x, n); v < lim {
+		return v
+	}
+	return lim
+}
+
+func sqrt(x float64) float64 {
+	var z float64 = 1
+	for i := 0; i < 10; i++ {
+		z -= (z*z - x) / (2 * z)
+	}
+	return z
+}
+
+func main() {
 	fmt.Println("Hello world")
 	fmt.Printf("%d\n", 10)
 	fmt.Println(time.Now())
@@ -33,4 +69,8 @@ func main(){
 	fmt.Printf("%d %s %s\n", a, b, c)
 
 	fmt.Printf("%d\n", square(4))
+
+	var sq float64 = 8596
+	fmt.Printf("My result: %f\n", sqrt(sq))
+	fmt.Printf("math.Sqrt result: %f\n", math.Sqrt(sq))
 }
