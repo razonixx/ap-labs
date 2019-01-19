@@ -10,7 +10,8 @@ int main(int argc, char const *argv[])
     int i = 0;
     int j = 0;
     int hasQuote = 0;
-    fp = fopen ("lab01.c", "r+");
+    fp = fopen ("test.c", "r+");
+    //fp = fopen ("lab01.c", "r+");
     //Get the number of chars in file
     while(1)
     {
@@ -74,6 +75,7 @@ int main(int argc, char const *argv[])
             }
         }
     }
+    //fwrite(buffer, sizeof(char), sizeof(buffer), fp);
     fclose(fp);
     return(0);
 }
