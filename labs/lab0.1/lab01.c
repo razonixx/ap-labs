@@ -6,12 +6,12 @@ int main(int argc, char const *argv[])
 {
     FILE * fp;
     char c;
-    //char buffer[50];
     int i = 0;
     int j = 0;
     int hasQuote = 0;
     fp = fopen ("test.c", "r+");
     //fp = fopen ("lab01.c", "r+");
+    
     //Get the number of chars in file
     while(1)
     {
@@ -59,7 +59,7 @@ int main(int argc, char const *argv[])
                     k++;
                 }
             }
-            if((buffer[k] == '/') && (buffer[k+1] == '*'))
+            if(((buffer[k] == '/') && (buffer[k+1] == '*')) && !hasQuote)
             {
                 // Continue reading until */ is found
                 while(1)
