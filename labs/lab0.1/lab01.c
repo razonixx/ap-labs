@@ -75,7 +75,6 @@ int main(int argc, char const *argv[])
             }
         }
     }
-    //fwrite(buffer, sizeof(char), sizeof(buffer), fp);
     fclose(fp);
     return(0);
 }
