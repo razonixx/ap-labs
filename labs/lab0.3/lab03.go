@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func pic(dx, dy int) [][]uint8 {
+func Pic(dx, dy int) [][]uint8 {
 	mat := make([][]uint8, dy)
 	for y := range mat {
 		mat[y] = make([]uint8, dx)
@@ -62,7 +62,11 @@ func (path Path) Distance() float64 {
 }
 
 func printPoint(p Point) {
-	fmt.Printf("%f, %f", p.X(), p.Y())
+	fmt.Printf("%f, %f\n", p.X(), p.Y())
+}
+
+func (p Point) printPoint() {
+	fmt.Printf("%f, %f\n", p.X(), p.Y())
 }
 
 func main() {
@@ -72,4 +76,5 @@ func main() {
 	var p = Point{4, 12}
 
 	printPoint(p)
+	p.printPoint()
 }
