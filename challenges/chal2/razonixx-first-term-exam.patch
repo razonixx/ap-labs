@@ -1,0 +1,328 @@
+diff --git a/challenges/chal2/dir-scan.go b/challenges/chal2/dir-scan.go
+index 9843134..2f4a86e 100644
+--- a/challenges/chal2/dir-scan.go
++++ b/challenges/chal2/dir-scan.go
+@@ -3,19 +3,48 @@ package main
+ import (
+ 	"fmt"
+ 	"os"
++	"path/filepath"
+ )
+ 
+ // scanDir stands for the directory scanning implementation
+ func scanDir(dir string) error {
++
++	var files []os.FileInfo
++	var numFiles = 0
++	var dirs = 0
++	var symLink = 0
++	var otherFiles = 0
++
++	root := os.Args[1]
++	walk := filepath.Walk(root, func(fp string, fi os.FileInfo, err error) error {
++		files = append(files, fi)
++		return nil
++	})
++	if walk != nil {
++		fmt.Printf("Error in walk function\n")
++		return nil
++	}
++	for _, file := range files {
++		numFiles++
++		if file.IsDir() {
++			dirs++
++		}
++		if file.Mode()&os.ModeSymlink != 0 {
++			symLink++
++		}
++	}
++	otherFiles = numFiles - dirs - symLink
++	fmt.Printf("Path: %s\n", dir)
++	fmt.Printf("Directories: %d\n", dirs)
++	fmt.Printf("Symbolic Links: %d\n", symLink)
++	fmt.Printf("Other Files: %d\n", otherFiles)
+ 	return nil
+ }
+ 
+ func main() {
+-
+ 	if len(os.Args) < 2 {
+ 		fmt.Println("Usage: ./dir-scan <directory>")
+ 		os.Exit(1)
+ 	}
+-
+ 	scanDir(os.Args[1])
+ }
+diff --git a/challenges/chal2/dmesg-analyzer.c b/challenges/chal2/dmesg-analyzer.c
+index aaa0e93..228fb16 100644
+--- a/challenges/chal2/dmesg-analyzer.c
++++ b/challenges/chal2/dmesg-analyzer.c
+@@ -1,8 +1,27 @@
+ #include <stdio.h>
+-
++#include <stdlib.h>
++#include <fcntl.h>
++#include <unistd.h>
++#include <sys/stat.h>
++#include <string.h>
++ 
+ #define REPORT_FILE "report.txt"
+ 
++const int MAP_SIZE = 0x00FFF;
++
++struct Map {
++    char* key;
++    char* value;
++};
++
++
+ void analizeLog(char *logFile, char *report);
++void printMap(struct Map *map, struct Map *mapLogType, int fd, char* outB, int bufferSize);
++void initMap(struct Map *map);
++int checkForLog(struct Map *map, char *log);
++void poblateMap(struct Map *map, char* buffer, int bufferSize);
++void parseLine(char **line, struct Map *data, int lineNumber);
++void sortMap(struct Map *map, int n);
+ 
+ int main(int argc, char **argv) {
+ 
+@@ -21,5 +40,226 @@ void analizeLog(char *logFile, char *report) {
+ 
+     // Implement your solution here.
+ 
++    struct Map map[MAP_SIZE];
++    struct Map mapLogType[MAP_SIZE];
++    initMap(map);
++    initMap(mapLogType);
++
++    //Report FD
++    int reportfd = open(report, O_RDWR | O_CREAT, 0666); 
++    //Log FD
++    int logfd = open(logFile, O_RDONLY); 
++
++    struct stat st;
++    fstat(logfd, &st);
++    int bufferSize = st.st_size;    
++
++    char* readBuffer = (char *) calloc(bufferSize, sizeof(char));
++    char writeBuffer[40000];
++
++    read(logfd, readBuffer, bufferSize);
++
++    struct Map map2[MAP_SIZE];
++    initMap(map2);
++    poblateMap(map2, readBuffer, bufferSize);
++    printMap(map2, mapLogType, reportfd, writeBuffer, bufferSize);
++    
++    write(reportfd, writeBuffer, bufferSize);
++    free(readBuffer);
++    close(reportfd);
++    close(logfd);
+     printf("Report is generated at: [%s]\n", report);
+ }
++
++void sortMap(struct Map *map, int n)
++{
++    char* tempKey = (char*)calloc(128, sizeof(char));
++    char* tempValue = (char*)calloc(2048, sizeof(char));
++    for (int j=0; j<n-1; j++) 
++    { 
++        for (int i=j+1; i<n; i++) 
++        { 
++            
++            if( (strcmp(map[j].key, map[i].key) > 0) && ((strcmp(map[i].key, "NULL") != 0) && (strcmp(map[j].key, "NULL") != 0)))
++            { 
++                (tempKey = map[j].key); 
++                (tempValue = map[j].value); 
++                (map[j].key = map[i].key); 
++                (map[j].value = map[i].value); 
++                (map[i].key = tempKey);
++                (map[i].value = tempValue); 
++            } 
++        } 
++    } 
++    free(tempKey);
++    free(tempValue);
++}
++
++void poblateMap(struct Map *map, char* buffer, int bufferSize)
++{
++    char **line = (char**)calloc(1024, sizeof(char*));
++    for(int i = 0; i < 1024; i++)
++    {
++        line[i] = "";        
++    }
++    
++    int numLines = 0;
++    for(int i = 0; i < bufferSize; i++)
++    {
++        if(buffer[i] == '\n')
++        {
++            numLines++;
++        }
++    }
++
++    struct Map data[MAP_SIZE];
++    initMap(data);
++    
++    int carry = 0;
++    for(int i = 0; i < numLines; i++)
++    {
++        char *temp = (char*)calloc(1024, sizeof(char));
++        int k = 0;
++        while(buffer[carry] != '\n')
++        {
++            temp[k] = buffer[carry];
++            k++;
++            carry++;
++        }
++        carry++;
++        line[i] = temp;
++        parseLine(line, data, i); 
++        map[i].key = data[i].key;
++        map[i].value = data[i].value;
++        free(temp);
++    }
++    sortMap(map, numLines);
++    free(line);
++}
++
++void parseLine(char **line, struct Map *data, int lineNumber)
++{
++    int logFlag = 0;
++    int logFlag2 = 0;
++    char *log_type = (char*)calloc(1024, sizeof(char));
++    char *nums = (char*)calloc(1024, sizeof(char));
++    char *msg = (char*)calloc(1024, sizeof(char));
++    msg[0] = '\0';
++    int w = 0;
++    int x = 0;
++    int y = 0;
++    int z = 0;
++    while (line[lineNumber][z-1] != ']') {
++        nums[x++] = line[lineNumber][z++];
++    }
++    if(line[lineNumber][z+1] == ' ' && line[lineNumber][z+2] == ' ' && (strcmp(data[lineNumber-1].key, "General")!=0))
++    {
++        logFlag = 1;
++    }
++    while (line[lineNumber][z] != '\0')
++    {
++        if (line[lineNumber][z] == ':' && line[lineNumber][z+1] == '\0') 
++        {
++            logFlag2 = 1;
++        }
++        if (line[lineNumber][z] == ':' && line[lineNumber][z+1] == ' ') 
++        {
++            break;
++        }
++        log_type[w++] = line[lineNumber][z];
++        if (line[lineNumber][z] == ']')
++        {
++            break;
++        }
++        z++;
++    }
++    log_type[w] = '\0';
++    while (line[lineNumber][z++] != '\0')
++    {
++        msg[y++] = line[lineNumber][z];
++    }
++    msg[y] = '\0';
++    if(msg[0] == '\0')
++    {
++        strcpy(msg, log_type);
++        strcpy(log_type, " General");
++    }
++    if(!logFlag)
++    {
++        data[lineNumber].key = log_type;
++    }
++    
++    if(logFlag2)
++    {
++        data[lineNumber].key = msg;
++    }
++    else
++    {
++        if(strcmp(data[lineNumber].key, "") == 0 || strcmp(data[lineNumber].key, "NULL") == 0)
++        {
++            data[lineNumber].key = data[lineNumber-1].key;
++        }
++        data[lineNumber].value = strcat(nums, msg);
++    }
++}
++
++void printMap(struct Map *map, struct Map *mapLogType, int fd, char* outB, int bufferSize)
++{
++    int j = 0; //MapLogType counter
++    for(int i = 0; i < MAP_SIZE; i++)
++    {
++        if(map[i].key == "NULL")
++        {
++            break;
++        }
++        if(checkForLog(mapLogType, map[i].key) && strcmp(map[i].value, "NULL") != 0)
++        {
++            printf("  %s\n",map[i].value);
++            strcat(outB, map[i].value);
++            strcat(outB, "\n");
++        }
++        else
++        {
++            mapLogType[j].key = map[i].key;
++            if(strcmp(map[i].key, "\n") != 0)
++            {
++                printf("%s\n",map[i].key);
++                strcat(outB, map[i].key);
++                strcat(outB, "\n");
++
++            }
++            if(strcmp(map[i].key, "NULL") != 0 && strcmp(map[i].value, "NULL") != 0)
++            {
++                printf("  %s\n",map[i].value);
++                strcat(outB, map[i].value);
++                strcat(outB, "\n");
++            }     
++            j++;
++        }
++    }
++}
++
++int checkForLog(struct Map *map, char *log)
++{
++    for(int i = 0; i < MAP_SIZE; i++)
++    {
++        if(map[i].key != "NULL" && strcmp(map[i].key,log)==0)
++        {
++            return 1;
++        }
++        if(map[i].key == "NULL")
++        {
++            break;
++        }
++    }
++    return 0;
++}
++
++void initMap(struct Map *map)
++{
++    for(int i = 0; i < MAP_SIZE; i++)
++    {
++        map[i].key = "NULL";
++        map[i].value = "NULL";
++    }
++}
+diff --git a/challenges/chal2/dmesg.txt b/challenges/chal2/dmesg.txt
+index f04c0f5..7334d8a 100644
+--- a/challenges/chal2/dmesg.txt
++++ b/challenges/chal2/dmesg.txt
+@@ -4,7 +4,7 @@
+ [    0.000000]   Intel GenuineIntel
+ [    0.000000]   AMD AuthenticAMD
+ [    0.000000]   Centaur CentaurHauls
+-[    0.000000] x86/fpu: Supporting XSAVE feature 0x001: 'x87 floating point registers'
++[    0.000000] General: Supporting XSAVE feature 0x001: 'x87 floating point registers'
+ [    0.000000] x86/fpu: Supporting XSAVE feature 0x002: 'SSE registers'
+ [    0.000000] x86/fpu: Supporting XSAVE feature 0x004: 'AVX registers'
+ [    0.000000] x86/fpu: xstate_offset[2]:  576, xstate_sizes[2]:  256

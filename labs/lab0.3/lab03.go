@@ -21,9 +21,9 @@ func wordCount(s string) map[string]int {
 	var arr = strings.Fields(s)
 	var m = make(map[string]int)
 	for index := 0; index < len(arr); index++ {
-		x := m[arr[index]]
-		x++
-		m[arr[index]] = x
+		m[arr[index]]++
+		//x++
+		//m[arr[index]] = x
 	}
 	return m
 }
