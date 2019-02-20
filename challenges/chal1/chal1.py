@@ -14,7 +14,7 @@ def ex1(string, list, l):
 #string = "qwwkew"
 #string = "water"
 #string = "aabbcc"
-string = "abcdefghijk"
+string = input("Enter string to check: ")
 l = 0
 for i in range(len(string)):
     list = []

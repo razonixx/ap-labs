@@ -39,9 +39,7 @@ void analizeLog(char *logFile, char *report) {
     printf("Generating Report from: [%s] log file\n", logFile);
     // Implement your solution here.
 
-    struct Map map[MAP_SIZE];
     struct Map mapLogType[MAP_SIZE];
-    initMap(map);
     initMap(mapLogType);
 
     //Report FD
