@@ -8,8 +8,11 @@ Compilation:
 run 'go build clock2.go' and start the servers you want. 3 examples: 
 
 TZ=US/Eastern ./clock2 -port 8010
+
 TZ=Asia/Tokyo ./clock2 -port 8020
+
 TZ=Europe/London ./clock2 -port 8030
+
 
 Once the servers you want are running, you can run 'go run clockWall.go' passing as parameters the information of the servers. An example using the servers started above:
 
