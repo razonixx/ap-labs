@@ -1,33 +1,27 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"log"
 	"net"
 	"os"
 	"strings"
-	"time"
+	"sync"
 )
 
-func clockWall(conn net.Conn, channel chan int, city string) {
-	var err error
+func clockWall(conn net.Conn, city string, wg *sync.WaitGroup) {
 	for true {
-		time.Sleep((1 * time.Second))
-		fmt.Printf(city + ": ")
-		_, err = io.CopyN(os.Stdout, conn, 9)
-		if err == io.EOF {
+		_, err := io.Copy(os.Stdout, conn)
+		if err == nil {
 			break
-		} else if err != nil {
-			log.Fatal(err)
 		}
 	}
-	log.Println("\nConnection with " + city + " clock closed.")
-	channel <- 2
+	log.Println("Connection with " + city + " clock closed.")
+	wg.Done()
 }
 
 func main() {
-	done := make(chan int)
+	var wg sync.WaitGroup
 	y := len(os.Args)
 
 	for i := 1; i < y; i++ {
@@ -37,9 +31,9 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		go clockWall(conn, done, city)
+		wg.Add(1)
+		go clockWall(conn, city, &wg)
 	}
-
-	_ = <-done // wait for background goroutine to finish
-	close(done)
+	wg.Wait()
+	log.Println("All clocks are closed. Exiting...")
 }

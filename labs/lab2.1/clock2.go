@@ -6,17 +6,28 @@ import (
 	"log"
 	"net"
 	"os"
+	"strings"
 	"time"
 )
 
 func handleConn(c net.Conn) {
 	defer c.Close()
+
+	tz := os.Getenv("TZ")
+	loc, err := time.LoadLocation(tz)
+	if err != nil {
+		log.Fatal(err)
+
+	}
+
 	for {
-		_, err := io.WriteString(c, time.Now().Format("15:04:05\n"))
+		//_, err := io.WriteString(c, time.Now().Format("15:04:05\n"))
+		_, err := io.WriteString(c, tz+strings.Repeat(" ", 15-len(tz))+":  "+time.Now().In(loc).Format("15:04:05\n"))
 		if err != nil {
 			return // e.g., client disconnected
 		}
-		time.Sleep((1 * time.Second) + (2 * time.Millisecond))
+		time.Sleep(1 * time.Second)
+		//time.LoadLocation()
 	}
 }
 
