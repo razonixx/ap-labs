@@ -65,12 +65,12 @@ void printBacktraceSyslog(){
 	size_t count;
 	count = backtrace(tracePtrs, 10);
 	char** funcNames = backtrace_symbols(tracePtrs, count);
-	syslog(LOG_CRIT, "BEGIN CORE DUMP\n");
-	syslog(LOG_CRIT, "-----------------------------------------------------\n");
+	syslog(LOG_ERR, "BEGIN CORE DUMP\n");
+	syslog(LOG_ERR, "-----------------------------------------------------\n");
 	for (int i = 0; i < count; i++)
 		syslog(LOG_EMERG, funcNames[i]);
-	syslog(LOG_CRIT, "-----------------------------------------------------\n");
-	syslog(LOG_CRIT, "END CORE DUMP\n");	
+	syslog(LOG_ERR, "-----------------------------------------------------\n");
+	syslog(LOG_ERR, "END CORE DUMP\n");	
 	free(funcNames);
 }
 
@@ -159,7 +159,7 @@ int panicf(const char *format, ...)
 	{
 		va_start (arg, format);
 		openlog ("Logger-PANIC", LOG_CONS | LOG_PID | LOG_NDELAY, LOG_LOCAL1);
-		vsyslog(LOG_CRIT, format, arg);
+		vsyslog(LOG_ERR, format, arg);
 		printBacktraceSyslog();
 		closelog();
 	}
