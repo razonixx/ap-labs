@@ -19,12 +19,13 @@ import (
 	"gopl.io/ch5/links"
 )
 
+//!+sema
 // tokens is a counting semaphore used to
 // enforce a limit of 20 concurrent requests.
 var tokens = make(chan struct{}, 20)
 
-func crawl(url string) []string {
-	fmt.Println(url)
+func crawl(url string, depth int) []string {
+	fmt.Printf("%s | depth: %d\n", url, depth)
 	tokens <- struct{}{} // acquire a token
 	list, err := links.Extract(url)
 	<-tokens // release the token
@@ -51,7 +52,7 @@ func crawler(depth int, url string, done chan bool) {
 		seen[url] = true
 	}
 
-	links := crawl(url)
+	links := crawl(url, depth)
 	linksDone := make(chan bool)
 
 	for _, link := range links {
