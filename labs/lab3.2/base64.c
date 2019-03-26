@@ -1,10 +1,11 @@
-//Code retrieved from: https://en.wikibooks.org/wiki/Algorithm_Implementation/Miscellaneous/Base64
-
+#include <unistd.h>
+#include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <inttypes.h>
 #include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include <signal.h>
+#include <unistd.h>
 
 #include "logger.h"
 
@@ -27,46 +28,114 @@ static const unsigned char d[] = {
     66,66,66,66,66,66
 };
 
+size_t x;
+int encodedLength = 0;
+int decodeCount = 0;
+long lSize = 0;
+char* mode;
+
 int base64encode(const void* data_buf, size_t dataLength, char* result, size_t resultSize);
 int base64decode (char *in, size_t inLen, unsigned char *out, size_t outLen);
 int readFile(char* file, char* encodedMessage, char* decodedMessage);
+int writeFile(char* buffer, char* file);
 
-float progress = 0;
-
-static void sigHandler(int sig)
+static void handler(int sig, siginfo_t *si, void *unused)
 {
-    infof("Progress: %f\n", progress);
+    /* Note: calling printf() from a signal handler is not safe
+        (and should not be done in production programs), since
+        printf() is not async-signal-safe; see signal-safety(7).
+        Nevertheless, we use printf() here as a simple way of
+        showing that the handler was called. */
+
+    if(strcmp(mode, "Encode") == 0)
+    {
+        warnf(" %s progress: %f\n", mode, ((float)x/(float)lSize)*100);
+    }
+    else
+    {
+        if(strcmp(mode, "Decode") == 0)
+        {
+            warnf(" %s progress: %f\n", mode, ((float)decodeCount/(float)encodedLength)*100);
+        }
+    }
+    sleep(1);
 }
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
+    initLogger("");
     if(argc < 3)
     {
-        printf("Usage: %s stdout file\n", argv[0]);
+        warnf("Usage: %s --<encode || decode> file\n", argv[0]);
         return 1;
     }
-    initLogger(argv[1]);
-
-    if (signal(SIGINT, sigHandler) == SIG_ERR)
+    if(strcmp(argv[1], "--encode") == 0)
     {
-        panicf("signal");
+        mode = "Encode";
+    }
+    else
+    {
+        if(strcmp(argv[1], "--decode") == 0)
+        {
+            mode = "Decode";
+        }
     }
     
+    struct sigaction sa;
+
+    sa.sa_flags = SA_SIGINFO;
+    sa.sa_sigaction = handler;
+    if (sigaction(SIGINT, &sa, NULL) == -1)
+    {
+        panicf("sigaction");
+    }
+    if (sigaction(30, &sa, NULL) == -1)
+    {
+        panicf("sigaction");
+    }
+
     char encodedMessage[BUFF_SIZE];
     char decodedMessage[BUFF_SIZE];
-    readFile(argv[2], encodedMessage, decodedMessage);
-
-    for (int j = 0; ; j++) {
-        printf("%d\n", j);
-        sleep(3);                       /* Loop slowly... */
+    readFile(argv[2], encodedMessage, decodedMessage); 
+    if(strcmp(mode, "Encode") == 0)
+    {
+        writeFile(encodedMessage, "encoded.txt");   
+        infof("Encoded file ready at encoded.txt\n");
+    }
+    else
+    {
+        if(strcmp(mode, "Decode") == 0)
+        {
+            writeFile(decodedMessage, "decoded.txt");
+            infof("Decoded file ready at decoded.txt\n");
+        }
     }
     return 0;
+}
+
+int writeFile(char* buffer, char* file)
+{
+    FILE *f_dst = fopen(file, "wb");
+    if(f_dst == NULL)
+    {
+        printf("ERROR - Failed to open file for writing\n");
+        exit(1);
+    }
+
+    // Write Buffer
+    if(fwrite(buffer, 1, strlen(buffer), f_dst) != strlen(buffer))
+    {
+        printf("ERROR - Failed to write %i bytes to file\n", strlen(buffer));
+        exit(1);
+    }
+
+    // Close File
+    fclose(f_dst);
 }
 
 int readFile(char* file, char* encodedMessage, char* decodedMessage)
 {
     FILE *fp;
-    long lSize;
 
     fp = fopen ( file , "rb" );
     if(!fp)
@@ -77,11 +146,9 @@ int readFile(char* file, char* encodedMessage, char* decodedMessage)
     lSize = ftell(fp);
     rewind(fp);
 
-    char* buffer;
-    size_t n = 0;
+    char* buffer = malloc(lSize);
     int c;
-
-    buffer = malloc(lSize+1);
+    int n = 0;
 
     if(!buffer)
     {
@@ -91,18 +158,23 @@ int readFile(char* file, char* encodedMessage, char* decodedMessage)
 
     while((c = fgetc(fp)) != EOF) 
     {
-        buffer[n++] = (char)c;
-        progress = (n/lSize)*100;
-        //infof("Char: %d\n", n);
+        if((char)c != EOF)
+        {
+            buffer[n++] = (char)c;
+        }
     }
-
-    buffer[n] = '\0';  
-
-    infof("Size of buffer: %d Buffer: %s\n", lSize+1, buffer);
-    base64encode(buffer, strlen(buffer), encodedMessage, BUFF_SIZE);
-    base64decode(encodedMessage, BUFF_SIZE, decodedMessage, BUFF_SIZE);
-    infof("Encoded Message: %s\n", encodedMessage);
-    infof("Decoded Message: %s\n", decodedMessage);
+    if(strcmp(mode, "Encode") == 0)
+    {
+        base64encode(buffer, strlen(buffer), encodedMessage, BUFF_SIZE);
+    }
+    else
+    {
+        if(strcmp(mode, "Decode") == 0)
+        {
+            encodedLength = strlen(buffer);
+            base64decode(buffer, encodedLength, decodedMessage, BUFF_SIZE);
+        }
+    }    
     return 0;
 }
 
@@ -111,7 +183,7 @@ int base64encode(const void* data_buf, size_t dataLength, char* result, size_t r
    const char base64chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
    const uint8_t *data = (const uint8_t *)data_buf;
    size_t resultIndex = 0;
-   size_t x;
+   //size_t x;
    uint32_t n = 0;
    int padCount = dataLength % 3;
    uint8_t n0, n1, n2, n3;
@@ -119,66 +191,70 @@ int base64encode(const void* data_buf, size_t dataLength, char* result, size_t r
    /* increment over the length of the string, three characters at a time */
    for (x = 0; x < dataLength; x += 3) 
    {
-      /* these three 8-bit (ASCII) characters become one 24-bit number */
-      n = ((uint32_t)data[x]) << 16; //parenthesis needed, compiler depending on flags can do the shifting before conversion to uint32_t, resulting to 0
-      
-      if((x+1) < dataLength)
-         n += ((uint32_t)data[x+1]) << 8;//parenthesis needed, compiler depending on flags can do the shifting before conversion to uint32_t, resulting to 0
-      
-      if((x+2) < dataLength)
-         n += data[x+2];
+        if(strcmp(mode, "Encode") == 0)
+        {
+            infof("Char: %d\n", x); //Make program slow
+        }
+        /* these three 8-bit (ASCII) characters become one 24-bit number */
+        n = ((uint32_t)data[x]) << 16; //parenthesis needed, compiler depending on flags can do the shifting before conversion to uint32_t, resulting to 0
 
-      /* this 24-bit number gets separated into four 6-bit numbers */
-      n0 = (uint8_t)(n >> 18) & 63;
-      n1 = (uint8_t)(n >> 12) & 63;
-      n2 = (uint8_t)(n >> 6) & 63;
-      n3 = (uint8_t)n & 63;
-            
-      /*
-       * if we have one byte available, then its encoding is spread
-       * out over two characters
-       */
-      if(resultIndex >= resultSize) return 1;   /* indicate failure: buffer too small */
-      result[resultIndex++] = base64chars[n0];
-      if(resultIndex >= resultSize) return 1;   /* indicate failure: buffer too small */
-      result[resultIndex++] = base64chars[n1];
+        if((x+1) < dataLength)
+        n += ((uint32_t)data[x+1]) << 8;//parenthesis needed, compiler depending on flags can do the shifting before conversion to uint32_t, resulting to 0
 
-      /*
-       * if we have only two bytes available, then their encoding is
-       * spread out over three chars
-       */
-      if((x+1) < dataLength)
-      {
-         if(resultIndex >= resultSize) return 1;   /* indicate failure: buffer too small */
-         result[resultIndex++] = base64chars[n2];
-      }
+        if((x+2) < dataLength)
+        n += data[x+2];
 
-      /*
-       * if we have all three bytes available, then their encoding is spread
-       * out over four characters
-       */
-      if((x+2) < dataLength)
-      {
-         if(resultIndex >= resultSize) return 1;   /* indicate failure: buffer too small */
-         result[resultIndex++] = base64chars[n3];
-      }
-   }
+        /* this 24-bit number gets separated into four 6-bit numbers */
+        n0 = (uint8_t)(n >> 18) & 63;
+        n1 = (uint8_t)(n >> 12) & 63;
+        n2 = (uint8_t)(n >> 6) & 63;
+        n3 = (uint8_t)n & 63;
 
-   /*
+        /*
+        * if we have one byte available, then its encoding is spread
+        * out over two characters
+        */
+        if(resultIndex >= resultSize) return 1;   /* indicate failure: buffer too small */
+            result[resultIndex++] = base64chars[n0];
+        if(resultIndex >= resultSize) return 1;   /* indicate failure: buffer too small */
+            result[resultIndex++] = base64chars[n1];
+
+        /*
+        * if we have only two bytes available, then their encoding is
+        * spread out over three chars
+        */
+        if((x+1) < dataLength)
+        {
+            if(resultIndex >= resultSize) return 1;   /* indicate failure: buffer too small */
+                result[resultIndex++] = base64chars[n2];
+        }
+
+        /*
+        * if we have all three bytes available, then their encoding is spread
+        * out over four characters
+        */
+        if((x+2) < dataLength)
+        {
+            if(resultIndex >= resultSize) return 1;   /* indicate failure: buffer too small */
+            result[resultIndex++] = base64chars[n3];
+        }
+    }
+
+    /*
     * create and add padding that is required if we did not have a multiple of 3
     * number of characters available
     */
-   if (padCount > 0) 
-   { 
-      for (; padCount < 3; padCount++) 
-      { 
-         if(resultIndex >= resultSize) return 1;   /* indicate failure: buffer too small */
-         result[resultIndex++] = '=';
-      } 
-   }
-   if(resultIndex >= resultSize) return 1;   /* indicate failure: buffer too small */
-   result[resultIndex] = 0;
-   return 0;   /* indicate success */
+    if (padCount > 0) 
+    { 
+        for (; padCount < 3; padCount++) 
+        { 
+            if(resultIndex >= resultSize) return 1;   /* indicate failure: buffer too small */
+                result[resultIndex++] = '=';
+        } 
+    }
+    if(resultIndex >= resultSize) return 1;   /* indicate failure: buffer too small */
+        result[resultIndex] = 0;
+    return 0;   /* indicate success */
 }
 
 int base64decode (char *in, size_t inLen, unsigned char *out, size_t outLen)
@@ -190,7 +266,11 @@ int base64decode (char *in, size_t inLen, unsigned char *out, size_t outLen)
     
     while (in < end) {
         unsigned char c = d[*in++];
-        
+        decodeCount++;
+        if(strcmp(mode, "Decode") == 0)
+        {
+            infof("Char: %d\n", decodeCount); //Make program slow
+        }
         switch (c) {
         case WHITESPACE: continue;   /* skip whitespace */
         case INVALID:    return 1;   /* invalid input, return error */
