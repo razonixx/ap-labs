@@ -7,7 +7,6 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"log"
 	"net"
@@ -19,39 +18,46 @@ func main() {
 	var user string
 	var server string
 
+	if len(os.Args) < 5 {
+		log.Fatalf("Usage: ./client -user <user> -server <server>\n")
+	}
+
 	if os.Args[1] == "-user" {
 		user = os.Args[2]
 	}
 	if os.Args[3] == "-server" {
 		server = os.Args[4]
 	}
-	fmt.Printf("User: %s Server: %s\n", user, server)
 
 	conn, err := net.Dial("tcp", server)
 	if err != nil {
 		log.Fatal(err)
 	}
-	io.WriteString(conn, user)
+
+	_, err = io.WriteString(conn, user+"\n")
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	done := make(chan struct{})
 	go func() {
-		_, err := io.Copy(os.Stdout, conn)
-		if err == nil {
-			log.Fatal(err)
-		}
+		mustCopy(os.Stdout, conn)
 		log.Println("done")
 		done <- struct{}{} // signal the main goroutine
 	}()
 
-	mustCopy(conn, os.Stdin)
-	conn.Close()
+	go func() {
+		mustCopy(conn, os.Stdin)
+	}()
 	<-done // wait for background goroutine to finish
+	conn.Close()
 }
 
 //!-
 
 func mustCopy(dst io.Writer, src io.Reader) {
-	if _, err := io.Copy(dst, src); err != nil {
+	_, err := io.Copy(dst, src)
+	if err != nil {
 		log.Fatal(err)
 	}
 }

@@ -13,7 +13,18 @@ import (
 	"log"
 	"net"
 	"os"
+	"strings"
+	"time"
 )
+
+type user struct {
+	userName string
+	ip       string
+	channel  chan string
+}
+
+var users = make([]user, 1000)
+var userCount = 0
 
 //!+broadcaster
 type client chan<- string // an outgoing message channel
@@ -29,7 +40,7 @@ func broadcaster() {
 	for {
 		select {
 		case msg := <-messages:
-			// Broadcast incoming message to all
+			// Broadcast incoming message to all except sender
 			// clients' outgoing message channels.
 			for cli := range clients {
 				cli <- msg
@@ -49,28 +60,79 @@ func broadcaster() {
 
 //!+handleConn
 func handleConn(conn net.Conn) {
+	defer conn.Close()
 	ch := make(chan string) // outgoing client messages
 	go clientWriter(conn, ch)
 	input := bufio.NewScanner(conn)
-	input.Scan()
+	input.Scan() //Go to username
 	who := input.Text()
-	ch <- "irc-server> You are " + who
+	users[userCount].userName = who
+	users[userCount].ip = conn.RemoteAddr().String()
+	users[userCount].channel = ch
+	userCount++ //Increase number of users
+	ch <- "irc-server> Welcome to the IRC server!"
+	ch <- "irc-server> Your user, " + who + ", has succesfully logged in!"
 	messages <- who + " has arrived"
 	entering <- ch
 
+	log.Printf("New connected user: %s\n", who)
 	for input.Scan() {
-		messages <- who + "> " + input.Text()
+		splitted := strings.Split(input.Text(), " ")
+
+		if splitted[0] == "/users" {
+			ch <- "irc-server> Users: "
+			for _, user := range users {
+				if len(user.userName) > 0 {
+					ch <- "irc-server> " + user.userName
+				}
+			}
+
+		} else if splitted[0] == "/msg" {
+			for i, user := range users {
+				if user.userName == splitted[1] {
+					tempString := "Direct message from " + who + ": "
+					for _, token := range splitted[2:] {
+						tempString += (token + " ")
+					}
+					user.channel <- tempString
+					break
+				}
+				if i == userCount {
+					ch <- "irc-server> Username not found"
+				}
+			}
+
+		} else if splitted[0] == "/time" {
+			ch <- "irc-server> Time: " + time.Now().Format("15:04:05")
+
+		} else if splitted[0] == "/user" {
+			for i, user := range users {
+				if user.userName == splitted[1] {
+					ch <- "irc-server> Username: " + user.userName + " IP Address: " + user.ip
+					break
+				}
+				if i == userCount {
+					ch <- "irc-server> Username not found"
+				}
+			}
+
+		} else {
+			messages <- who + "> " + input.Text()
+		}
 	}
-	// NOTE: ignoring potential errors from input.Err()
 
 	leaving <- ch
 	messages <- who + " has left"
-	conn.Close()
+	log.Printf("%s disconnected\n", who)
+	userCount-- //Decrease number of users
 }
 
 func clientWriter(conn net.Conn, ch <-chan string) {
 	for msg := range ch {
-		fmt.Fprintln(conn, msg) // NOTE: ignoring network errors
+		_, err := fmt.Fprintln(conn, msg)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 
