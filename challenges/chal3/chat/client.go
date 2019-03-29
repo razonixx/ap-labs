@@ -42,7 +42,7 @@ func main() {
 	done := make(chan struct{})
 	go func() {
 		mustCopy(os.Stdout, conn)
-		log.Println("done")
+		log.Println("Server closed")
 		done <- struct{}{} // signal the main goroutine
 	}()
 

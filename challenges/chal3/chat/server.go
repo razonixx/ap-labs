@@ -61,8 +61,9 @@ func broadcaster() {
 //!+handleConn
 func handleConn(conn net.Conn) {
 	defer conn.Close()
-	ch := make(chan string) // outgoing client messages
-	go clientWriter(conn, ch)
+	ch := make(chan string)       // outgoing client messages
+	serverCh := make(chan string) // outgoing client messages
+	go clientWriter(conn, serverCh)
 	input := bufio.NewScanner(conn)
 	input.Scan() //Go to username
 	who := input.Text()
@@ -70,8 +71,9 @@ func handleConn(conn net.Conn) {
 	users[userCount].ip = conn.RemoteAddr().String()
 	users[userCount].channel = ch
 	userCount++ //Increase number of users
-	ch <- "irc-server> Welcome to the IRC server!"
-	ch <- "irc-server> Your user, " + who + ", has succesfully logged in!"
+	go clientWriterNoNewLine(conn, ch, who)
+	serverCh <- "irc-server> Welcome to the IRC server!"
+	serverCh <- "irc-server> Your user, " + who + ", has succesfully logged in!"
 	messages <- who + " has arrived"
 	entering <- ch
 
@@ -130,6 +132,15 @@ func handleConn(conn net.Conn) {
 func clientWriter(conn net.Conn, ch <-chan string) {
 	for msg := range ch {
 		_, err := fmt.Fprintln(conn, msg)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+}
+
+func clientWriterNoNewLine(conn net.Conn, ch <-chan string, user string) {
+	for msg := range ch {
+		_, err := fmt.Fprintf(conn, "%s\n", msg)
 		if err != nil {
 			log.Fatal(err)
 		}
