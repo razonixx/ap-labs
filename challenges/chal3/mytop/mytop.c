@@ -39,7 +39,7 @@ static void handler(int sig, siginfo_t *si, void *unused)
         printf() is not async-signal-safe; see signal-safety(7).
         Nevertheless, we use printf() here as a simple way of
         showing that the handler was called. */
-    ssFp = fopen(ssPath, "w+");
+    ssFp = fopen(ssPath, "w");
     ssTable(ssFp, processes, k);
     fclose(ssFp);
 }
@@ -102,8 +102,8 @@ int main()
                     free(tempPath);                    
                     free(statPath);
                     long memSize = (rss*4096)/1024; // # of pages * pagesize = size in bytes, /1024 = size in kbytes
-                    char* queEstaPasando = calloc(1, sizeof(char));
-                    free(queEstaPasando);
+                    //char* queEstaPasando = calloc(1, sizeof(char));
+                    //sfree(queEstaPasando);
                     processes[i].memory = memSize; 
                     char* tempString1 = calloc(50, sizeof(char));
                     char* tempString2 = calloc(50, sizeof(char));
