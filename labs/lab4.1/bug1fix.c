@@ -7,6 +7,7 @@
  * SOURCE: Adapted from example code in "Pthreads Programming", B. Nichols
  *   et al. O'Reilly and Associates.
  * LAST REVISED: 01/29/09  Blaise Barney
+ * 
  ******************************************************************************/
 #include <pthread.h>
 #include <stdio.h>
@@ -35,16 +36,13 @@ void *inc_count(void *idp)
 	*/
 	if (count == COUNT_LIMIT) {
 	    pthread_cond_broadcast(&count_threshold_cv);
-	    printf("inc_count(): thread %ld, count = %d  Threshold reached.\n",
-		   my_id, count);
+	    printf("inc_count(): thread %ld, count = %d  Threshold reached.\n", my_id, count);
 	}
-	printf("inc_count(): thread %ld, count = %d, unlocking mutex\n",
-	       my_id, count);
+	printf("inc_count(): thread %ld, count = %d, unlocking mutex\n", my_id, count);
 	pthread_mutex_unlock(&count_mutex);
 
 	/* Do some work so threads can alternate on mutex lock */
 	sleep(1);
-
     }
     pthread_exit(NULL);
 }

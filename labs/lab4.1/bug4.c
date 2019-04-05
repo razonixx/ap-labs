@@ -25,10 +25,7 @@ void *sub1(void *t)
 {
     int i;
     long tid = (long)t;
-    double myresult=0.0;
 
-    /* do some work */
-    sleep(1);
     /*
       Lock mutex and wait for signal only if count is what is expected.  Note
       that the pthread_cond_wait routine will automatically and atomically
@@ -38,14 +35,17 @@ void *sub1(void *t)
       work is now done within the mutex lock of count.
     */
     pthread_mutex_lock(&count_mutex);
+    while(count < THRESHOLD) {
     printf("sub1: thread=%ld going into wait. count=%d\n",tid,count);
     pthread_cond_wait(&count_condvar, &count_mutex);
     printf("sub1: thread=%ld Condition variable signal received.",tid);
     printf(" count=%d\n",count);
+    }
+    sleep(1);
     count++;
-    finalresult += myresult;
+    finalresult += count;
     printf("sub1: thread=%ld count now equals=%d myresult=%e. Done.\n",
-	   tid,count,myresult);
+	   tid,count,finalresult);
     pthread_mutex_unlock(&count_mutex);
     pthread_exit(NULL);
 }

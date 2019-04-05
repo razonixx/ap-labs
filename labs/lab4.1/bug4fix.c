@@ -114,5 +114,4 @@ int main(int argc, char *argv[])
     pthread_mutex_destroy(&count_mutex);
     pthread_cond_destroy(&count_condvar);
     pthread_exit (NULL);
-
 }
