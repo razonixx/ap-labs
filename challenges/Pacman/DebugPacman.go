@@ -20,6 +20,11 @@ type food struct {
 	vec pixel.Vec
 }
 
+type wall struct {
+	vec1, vec2 pixel.Vec
+	line       pixel.Line
+}
+
 const constSpeed = 3.3
 
 var speed = constSpeed
@@ -27,8 +32,8 @@ var pause = false
 var score = 0
 var imd = imdraw.New(nil)
 
-//var foods = []food{}
 var foods = make(map[int]food)
+var walls = make(map[int]wall)
 
 func loadPicture(path string) (pixel.Picture, error) {
 	file, err := os.Open(path)
@@ -41,6 +46,25 @@ func loadPicture(path string) (pixel.Picture, error) {
 		return nil, err
 	}
 	return pixel.PictureDataFromImage(img), nil
+}
+
+func checkCollision(vec1, vec2 pixel.Vec) bool { //Check if vec1 is in boundary of vec2
+	if vec1.X > vec2.X-15 && vec1.X < vec2.X+15 {
+		if vec1.Y > vec2.Y-15 && vec1.Y < vec2.Y+15 {
+			return true
+		}
+	}
+	return false
+}
+
+func checkLine(vec1 pixel.Vec, line pixel.Line) bool { //Check if vec1 is in boundary of rect created by vec2 and vec3
+	if vec1.X > line.A.X && vec1.X < line.B.X {
+		if vec1.Y >= line.A.Y-5 && vec1.Y <= line.B.Y+5 {
+			log.Println("Collition")
+			return true
+		}
+	}
+	return false
 }
 
 func setUpLevel() {
@@ -56,30 +80,16 @@ func setUpLevel() {
 		foods[8] = food{vec: pixel.V(float64(900), float64(45))}
 		foods[9] = food{vec: pixel.V(float64(1000), float64(45))}
 	}
+
+	{ //Declare walls
+		walls[0] = wall{vec1: pixel.V(float64(112), float64(635)), vec2: pixel.V(float64(210), float64(635))}
+		walls[1] = wall{vec1: pixel.V(float64(112), float64(590)), vec2: pixel.V(float64(210), float64(590))}
+	}
 	imd.Color = colornames.Yellow
 	for _, singleFood := range foods {
 		imd.Push(singleFood.vec)
 	}
 	imd.Circle(6, 0)
-}
-
-func checkCollision(vec1, vec2 pixel.Vec) bool { //Check if vec1 is in boundary of vec2
-	if vec1.X > vec2.X-15 && vec1.X < vec2.X+15 {
-		if vec1.Y > vec2.Y-15 && vec1.Y < vec2.Y+15 {
-
-			return true
-		}
-	}
-	return false
-}
-
-func checkBoundaries(vec1, vec2, vec3 pixel.Vec) bool { //Check if vec1 is in boundary of rect created by vec2 and vec3
-	if (vec1.X > vec2.X-15 && vec1.X < vec2.X+15) || (vec1.X > vec3.X-15 && vec1.X < vec3.X+15) {
-		if (vec1.Y > vec2.Y-15 && vec1.Y < vec2.Y+15) || (vec1.Y > vec3.Y-15 && vec1.Y < vec3.Y+15) {
-			return true
-		}
-	}
-	return false
 }
 
 func run() {
@@ -136,6 +146,12 @@ func run() {
 		backgroundMat := pixel.IM
 		backgroundMat = mat.Moved(pixel.V(512, 344))
 		backgroundSprite.Draw(win, backgroundMat)
+		for _, singeWall := range walls {
+			singeWall.line = pixel.L(singeWall.vec1, singeWall.vec2)
+			if checkLine(currentPos, singeWall.line) {
+				pause = true
+			}
+		}
 		for i, singleFood := range foods { //Draw and check collision with food
 			if checkCollision(currentPos, singleFood.vec) {
 				pause = true
