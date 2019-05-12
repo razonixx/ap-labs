@@ -17,7 +17,7 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 )
 
-type food struct {
+type node struct {
 	vec pixel.Vec
 }
 
@@ -33,7 +33,7 @@ var pause = false
 var score = 0
 var numGhosts int
 var currentPos pixel.Vec
-var foods = make(map[int]food)
+var nodes = make(map[int]node)
 var walls = []wall{}
 
 func loadPicture(path string) (pixel.Picture, error) {
@@ -76,9 +76,9 @@ func checkCollisionAllWalls(vec pixel.Vec) bool {
 	return false
 }
 
-func checkCollisionGhost(ghost string, vec pixel.Vec) bool {
+func checkCollisionGhost(vec pixel.Vec) bool {
 	if checkCollision(vec, currentPos) {
-		log.Printf("YOU LOSE!! Killed by: %s", ghost)
+		log.Printf("YOU LOSE!!")
 		os.Exit(0)
 	}
 	for _, singeWall := range walls {
@@ -127,260 +127,262 @@ func setUpLevel() {
 			imd.Rectangle(0)
 		}
 
-		//Declare food
+		//Declare node
 		{
 			{ //row 1
-				foods[0] = food{vec: pixel.V(float64(40), float64(40))}
-				foods[1] = food{vec: pixel.V(float64(80), float64(40))}
-				foods[2] = food{vec: pixel.V(float64(120), float64(40))}
-				foods[3] = food{vec: pixel.V(float64(160), float64(40))}
-				foods[4] = food{vec: pixel.V(float64(200), float64(40))}
-				foods[5] = food{vec: pixel.V(float64(240), float64(40))}
-				foods[6] = food{vec: pixel.V(float64(280), float64(40))}
-				foods[7] = food{vec: pixel.V(float64(320), float64(40))}
-				foods[8] = food{vec: pixel.V(float64(360), float64(40))}
-				foods[9] = food{vec: pixel.V(float64(400), float64(40))}
-				foods[10] = food{vec: pixel.V(float64(440), float64(40))}
-				foods[11] = food{vec: pixel.V(float64(580), float64(40))}
-				foods[12] = food{vec: pixel.V(float64(620), float64(40))}
-				foods[13] = food{vec: pixel.V(float64(660), float64(40))}
-				foods[14] = food{vec: pixel.V(float64(700), float64(40))}
-				foods[15] = food{vec: pixel.V(float64(740), float64(40))}
-				foods[16] = food{vec: pixel.V(float64(780), float64(40))}
-				foods[17] = food{vec: pixel.V(float64(820), float64(40))}
-				foods[18] = food{vec: pixel.V(float64(860), float64(40))}
-				foods[19] = food{vec: pixel.V(float64(900), float64(40))}
-				foods[20] = food{vec: pixel.V(float64(940), float64(40))}
-				foods[21] = food{vec: pixel.V(float64(980), float64(40))}
+				nodes[0] = node{vec: pixel.V(float64(40), float64(40))}
+				nodes[1] = node{vec: pixel.V(float64(80), float64(40))}
+				nodes[2] = node{vec: pixel.V(float64(120), float64(40))}
+				nodes[3] = node{vec: pixel.V(float64(160), float64(40))}
+				nodes[4] = node{vec: pixel.V(float64(200), float64(40))}
+				nodes[5] = node{vec: pixel.V(float64(240), float64(40))}
+				nodes[6] = node{vec: pixel.V(float64(280), float64(40))}
+				nodes[7] = node{vec: pixel.V(float64(320), float64(40))}
+				nodes[8] = node{vec: pixel.V(float64(360), float64(40))}
+				nodes[9] = node{vec: pixel.V(float64(400), float64(40))}
+				nodes[10] = node{vec: pixel.V(float64(440), float64(40))}
+				nodes[11] = node{vec: pixel.V(float64(580), float64(40))}
+				nodes[12] = node{vec: pixel.V(float64(620), float64(40))}
+				nodes[13] = node{vec: pixel.V(float64(660), float64(40))}
+				nodes[14] = node{vec: pixel.V(float64(700), float64(40))}
+				nodes[15] = node{vec: pixel.V(float64(740), float64(40))}
+				nodes[16] = node{vec: pixel.V(float64(780), float64(40))}
+				nodes[17] = node{vec: pixel.V(float64(820), float64(40))}
+				nodes[18] = node{vec: pixel.V(float64(860), float64(40))}
+				nodes[19] = node{vec: pixel.V(float64(900), float64(40))}
+				nodes[20] = node{vec: pixel.V(float64(940), float64(40))}
+				nodes[21] = node{vec: pixel.V(float64(980), float64(40))}
 			}
 			{ //row2
-				foods[22] = food{vec: pixel.V(float64(40), float64(80))}
-				foods[23] = food{vec: pixel.V(float64(320), float64(80))}
-				foods[24] = food{vec: pixel.V(float64(360), float64(80))}
-				foods[25] = food{vec: pixel.V(float64(400), float64(80))}
-				foods[26] = food{vec: pixel.V(float64(440), float64(80))}
-				foods[27] = food{vec: pixel.V(float64(580), float64(80))}
-				foods[28] = food{vec: pixel.V(float64(620), float64(80))}
-				foods[29] = food{vec: pixel.V(float64(660), float64(80))}
-				foods[30] = food{vec: pixel.V(float64(700), float64(80))}
-				foods[31] = food{vec: pixel.V(float64(980), float64(80))}
+				nodes[22] = node{vec: pixel.V(float64(40), float64(80))}
+				nodes[23] = node{vec: pixel.V(float64(320), float64(80))}
+				nodes[24] = node{vec: pixel.V(float64(360), float64(80))}
+				nodes[25] = node{vec: pixel.V(float64(400), float64(80))}
+				nodes[26] = node{vec: pixel.V(float64(440), float64(80))}
+				nodes[27] = node{vec: pixel.V(float64(580), float64(80))}
+				nodes[28] = node{vec: pixel.V(float64(620), float64(80))}
+				nodes[29] = node{vec: pixel.V(float64(660), float64(80))}
+				nodes[30] = node{vec: pixel.V(float64(700), float64(80))}
+				nodes[31] = node{vec: pixel.V(float64(980), float64(80))}
 			}
 			{ //row3
-				foods[32] = food{vec: pixel.V(float64(40), float64(120))}
-				foods[33] = food{vec: pixel.V(float64(320), float64(120))}
-				foods[34] = food{vec: pixel.V(float64(360), float64(120))}
-				foods[35] = food{vec: pixel.V(float64(400), float64(120))}
-				foods[36] = food{vec: pixel.V(float64(440), float64(120))}
-				foods[37] = food{vec: pixel.V(float64(580), float64(120))}
-				foods[38] = food{vec: pixel.V(float64(620), float64(120))}
-				foods[39] = food{vec: pixel.V(float64(660), float64(120))}
-				foods[40] = food{vec: pixel.V(float64(700), float64(120))}
-				foods[41] = food{vec: pixel.V(float64(980), float64(120))}
+				nodes[32] = node{vec: pixel.V(float64(40), float64(120))}
+				nodes[33] = node{vec: pixel.V(float64(320), float64(120))}
+				nodes[34] = node{vec: pixel.V(float64(360), float64(120))}
+				nodes[35] = node{vec: pixel.V(float64(400), float64(120))}
+				nodes[36] = node{vec: pixel.V(float64(440), float64(120))}
+				nodes[37] = node{vec: pixel.V(float64(580), float64(120))}
+				nodes[38] = node{vec: pixel.V(float64(620), float64(120))}
+				nodes[39] = node{vec: pixel.V(float64(660), float64(120))}
+				nodes[40] = node{vec: pixel.V(float64(700), float64(120))}
+				nodes[41] = node{vec: pixel.V(float64(980), float64(120))}
 			}
 			{ //row4
-				foods[42] = food{vec: pixel.V(float64(40), float64(160))}
-				foods[43] = food{vec: pixel.V(float64(320), float64(160))}
-				foods[44] = food{vec: pixel.V(float64(360), float64(160))}
-				foods[45] = food{vec: pixel.V(float64(400), float64(160))}
-				foods[46] = food{vec: pixel.V(float64(440), float64(160))}
-				foods[47] = food{vec: pixel.V(float64(580), float64(160))}
-				foods[48] = food{vec: pixel.V(float64(620), float64(160))}
-				foods[49] = food{vec: pixel.V(float64(660), float64(160))}
-				foods[50] = food{vec: pixel.V(float64(700), float64(160))}
-				foods[51] = food{vec: pixel.V(float64(980), float64(160))}
+				nodes[42] = node{vec: pixel.V(float64(40), float64(160))}
+				nodes[43] = node{vec: pixel.V(float64(320), float64(160))}
+				nodes[44] = node{vec: pixel.V(float64(360), float64(160))}
+				nodes[45] = node{vec: pixel.V(float64(400), float64(160))}
+				nodes[46] = node{vec: pixel.V(float64(440), float64(160))}
+				nodes[47] = node{vec: pixel.V(float64(580), float64(160))}
+				nodes[48] = node{vec: pixel.V(float64(620), float64(160))}
+				nodes[49] = node{vec: pixel.V(float64(660), float64(160))}
+				nodes[50] = node{vec: pixel.V(float64(700), float64(160))}
+				nodes[51] = node{vec: pixel.V(float64(980), float64(160))}
 			}
 			{ //row5
-				foods[52] = food{vec: pixel.V(float64(40), float64(200))}
-				foods[53] = food{vec: pixel.V(float64(320), float64(200))}
-				foods[54] = food{vec: pixel.V(float64(360), float64(200))}
-				foods[55] = food{vec: pixel.V(float64(400), float64(200))}
-				foods[56] = food{vec: pixel.V(float64(440), float64(200))}
-				foods[57] = food{vec: pixel.V(float64(580), float64(200))}
-				foods[58] = food{vec: pixel.V(float64(620), float64(200))}
-				foods[59] = food{vec: pixel.V(float64(660), float64(200))}
-				foods[60] = food{vec: pixel.V(float64(700), float64(200))}
-				foods[61] = food{vec: pixel.V(float64(980), float64(200))}
+				nodes[52] = node{vec: pixel.V(float64(40), float64(200))}
+				nodes[53] = node{vec: pixel.V(float64(320), float64(200))}
+				nodes[54] = node{vec: pixel.V(float64(360), float64(200))}
+				nodes[55] = node{vec: pixel.V(float64(400), float64(200))}
+				nodes[56] = node{vec: pixel.V(float64(440), float64(200))}
+				nodes[57] = node{vec: pixel.V(float64(580), float64(200))}
+				nodes[58] = node{vec: pixel.V(float64(620), float64(200))}
+				nodes[59] = node{vec: pixel.V(float64(660), float64(200))}
+				nodes[60] = node{vec: pixel.V(float64(700), float64(200))}
+				nodes[61] = node{vec: pixel.V(float64(980), float64(200))}
 			}
 			{ //row6
-				foods[62] = food{vec: pixel.V(float64(40), float64(240))}
-				foods[63] = food{vec: pixel.V(float64(320), float64(240))}
-				foods[64] = food{vec: pixel.V(float64(360), float64(240))}
-				foods[65] = food{vec: pixel.V(float64(400), float64(240))}
-				foods[66] = food{vec: pixel.V(float64(440), float64(240))}
-				foods[72] = food{vec: pixel.V(float64(485), float64(240))}
-				foods[73] = food{vec: pixel.V(float64(535), float64(240))}
-				foods[67] = food{vec: pixel.V(float64(580), float64(240))}
-				foods[68] = food{vec: pixel.V(float64(620), float64(240))}
-				foods[69] = food{vec: pixel.V(float64(660), float64(240))}
-				foods[70] = food{vec: pixel.V(float64(700), float64(240))}
-				foods[71] = food{vec: pixel.V(float64(980), float64(240))}
+				nodes[62] = node{vec: pixel.V(float64(40), float64(240))}
+				nodes[63] = node{vec: pixel.V(float64(320), float64(240))}
+				nodes[64] = node{vec: pixel.V(float64(360), float64(240))}
+				nodes[65] = node{vec: pixel.V(float64(400), float64(240))}
+				nodes[66] = node{vec: pixel.V(float64(440), float64(240))}
+				nodes[72] = node{vec: pixel.V(float64(485), float64(240))}
+				nodes[73] = node{vec: pixel.V(float64(535), float64(240))}
+				nodes[67] = node{vec: pixel.V(float64(580), float64(240))}
+				nodes[68] = node{vec: pixel.V(float64(620), float64(240))}
+				nodes[69] = node{vec: pixel.V(float64(660), float64(240))}
+				nodes[70] = node{vec: pixel.V(float64(700), float64(240))}
+				nodes[71] = node{vec: pixel.V(float64(980), float64(240))}
 			}
 			{ //row7
-				foods[74] = food{vec: pixel.V(float64(40), float64(280))}
-				foods[75] = food{vec: pixel.V(float64(320), float64(280))}
-				foods[76] = food{vec: pixel.V(float64(700), float64(280))}
-				foods[77] = food{vec: pixel.V(float64(980), float64(280))}
+				nodes[74] = node{vec: pixel.V(float64(40), float64(280))}
+				nodes[75] = node{vec: pixel.V(float64(320), float64(280))}
+				nodes[76] = node{vec: pixel.V(float64(700), float64(280))}
+				nodes[77] = node{vec: pixel.V(float64(980), float64(280))}
 			}
 			{ //row8
-				foods[78] = food{vec: pixel.V(float64(40), float64(320))}
-				foods[79] = food{vec: pixel.V(float64(80), float64(320))}
-				foods[80] = food{vec: pixel.V(float64(120), float64(320))}
-				foods[81] = food{vec: pixel.V(float64(160), float64(320))}
-				foods[82] = food{vec: pixel.V(float64(200), float64(320))}
-				foods[83] = food{vec: pixel.V(float64(240), float64(320))}
-				foods[84] = food{vec: pixel.V(float64(280), float64(320))}
-				foods[86] = food{vec: pixel.V(float64(320), float64(320))}
-				foods[87] = food{vec: pixel.V(float64(700), float64(320))}
-				foods[88] = food{vec: pixel.V(float64(740), float64(320))}
-				foods[89] = food{vec: pixel.V(float64(780), float64(320))}
-				foods[90] = food{vec: pixel.V(float64(820), float64(320))}
-				foods[91] = food{vec: pixel.V(float64(860), float64(320))}
-				foods[92] = food{vec: pixel.V(float64(900), float64(320))}
-				foods[93] = food{vec: pixel.V(float64(940), float64(320))}
-				foods[94] = food{vec: pixel.V(float64(980), float64(320))}
+				nodes[78] = node{vec: pixel.V(float64(40), float64(320))}
+				nodes[79] = node{vec: pixel.V(float64(80), float64(320))}
+				nodes[80] = node{vec: pixel.V(float64(120), float64(320))}
+				nodes[81] = node{vec: pixel.V(float64(160), float64(320))}
+				nodes[82] = node{vec: pixel.V(float64(200), float64(320))}
+				nodes[83] = node{vec: pixel.V(float64(240), float64(320))}
+				nodes[84] = node{vec: pixel.V(float64(280), float64(320))}
+				nodes[86] = node{vec: pixel.V(float64(320), float64(320))}
+				nodes[87] = node{vec: pixel.V(float64(700), float64(320))}
+				nodes[88] = node{vec: pixel.V(float64(740), float64(320))}
+				nodes[89] = node{vec: pixel.V(float64(780), float64(320))}
+				nodes[90] = node{vec: pixel.V(float64(820), float64(320))}
+				nodes[91] = node{vec: pixel.V(float64(860), float64(320))}
+				nodes[92] = node{vec: pixel.V(float64(900), float64(320))}
+				nodes[93] = node{vec: pixel.V(float64(940), float64(320))}
+				nodes[94] = node{vec: pixel.V(float64(980), float64(320))}
 			}
 			{ //row9
-				foods[95] = food{vec: pixel.V(float64(40), float64(360))}
-				foods[96] = food{vec: pixel.V(float64(80), float64(360))}
-				foods[97] = food{vec: pixel.V(float64(120), float64(360))}
-				foods[98] = food{vec: pixel.V(float64(240), float64(360))}
-				foods[99] = food{vec: pixel.V(float64(280), float64(360))}
-				foods[194] = food{vec: pixel.V(float64(320), float64(360))}
-				foods[195] = food{vec: pixel.V(float64(700), float64(360))}
-				foods[196] = food{vec: pixel.V(float64(740), float64(360))}
-				foods[197] = food{vec: pixel.V(float64(780), float64(360))}
-				foods[198] = food{vec: pixel.V(float64(900), float64(360))}
-				foods[199] = food{vec: pixel.V(float64(940), float64(360))}
-				foods[200] = food{vec: pixel.V(float64(980), float64(360))}
+				nodes[95] = node{vec: pixel.V(float64(40), float64(360))}
+				nodes[96] = node{vec: pixel.V(float64(80), float64(360))}
+				nodes[97] = node{vec: pixel.V(float64(120), float64(360))}
+				nodes[98] = node{vec: pixel.V(float64(240), float64(360))}
+				nodes[99] = node{vec: pixel.V(float64(280), float64(360))}
+				nodes[194] = node{vec: pixel.V(float64(320), float64(360))}
+				nodes[195] = node{vec: pixel.V(float64(700), float64(360))}
+				nodes[196] = node{vec: pixel.V(float64(740), float64(360))}
+				nodes[197] = node{vec: pixel.V(float64(780), float64(360))}
+				nodes[198] = node{vec: pixel.V(float64(900), float64(360))}
+				nodes[199] = node{vec: pixel.V(float64(940), float64(360))}
+				nodes[200] = node{vec: pixel.V(float64(980), float64(360))}
 			}
 			{ //row10
-				foods[100] = food{vec: pixel.V(float64(40), float64(400))}
-				foods[101] = food{vec: pixel.V(float64(80), float64(400))}
-				foods[102] = food{vec: pixel.V(float64(120), float64(400))}
-				foods[103] = food{vec: pixel.V(float64(160), float64(400))}
-				foods[104] = food{vec: pixel.V(float64(200), float64(400))}
-				foods[105] = food{vec: pixel.V(float64(240), float64(400))}
-				foods[106] = food{vec: pixel.V(float64(280), float64(400))}
-				foods[107] = food{vec: pixel.V(float64(320), float64(400))}
-				foods[108] = food{vec: pixel.V(float64(700), float64(400))}
-				foods[109] = food{vec: pixel.V(float64(740), float64(400))}
-				foods[110] = food{vec: pixel.V(float64(780), float64(400))}
-				foods[111] = food{vec: pixel.V(float64(820), float64(400))}
-				foods[112] = food{vec: pixel.V(float64(860), float64(400))}
-				foods[113] = food{vec: pixel.V(float64(900), float64(400))}
-				foods[114] = food{vec: pixel.V(float64(940), float64(400))}
-				foods[115] = food{vec: pixel.V(float64(980), float64(400))}
+				nodes[100] = node{vec: pixel.V(float64(40), float64(400))}
+				nodes[101] = node{vec: pixel.V(float64(80), float64(400))}
+				nodes[102] = node{vec: pixel.V(float64(120), float64(400))}
+				nodes[103] = node{vec: pixel.V(float64(160), float64(400))}
+				nodes[104] = node{vec: pixel.V(float64(200), float64(400))}
+				nodes[105] = node{vec: pixel.V(float64(240), float64(400))}
+				nodes[106] = node{vec: pixel.V(float64(280), float64(400))}
+				nodes[107] = node{vec: pixel.V(float64(320), float64(400))}
+				nodes[108] = node{vec: pixel.V(float64(700), float64(400))}
+				nodes[109] = node{vec: pixel.V(float64(740), float64(400))}
+				nodes[110] = node{vec: pixel.V(float64(780), float64(400))}
+				nodes[111] = node{vec: pixel.V(float64(820), float64(400))}
+				nodes[112] = node{vec: pixel.V(float64(860), float64(400))}
+				nodes[113] = node{vec: pixel.V(float64(900), float64(400))}
+				nodes[114] = node{vec: pixel.V(float64(940), float64(400))}
+				nodes[115] = node{vec: pixel.V(float64(980), float64(400))}
 			}
 			{ //row11
-				foods[116] = food{vec: pixel.V(float64(40), float64(440))}
-				foods[117] = food{vec: pixel.V(float64(320), float64(440))}
-				foods[118] = food{vec: pixel.V(float64(700), float64(440))}
-				foods[119] = food{vec: pixel.V(float64(980), float64(440))}
+				nodes[116] = node{vec: pixel.V(float64(40), float64(440))}
+				nodes[117] = node{vec: pixel.V(float64(320), float64(440))}
+				nodes[118] = node{vec: pixel.V(float64(700), float64(440))}
+				nodes[119] = node{vec: pixel.V(float64(980), float64(440))}
 			}
 			{ //row12
-				foods[120] = food{vec: pixel.V(float64(40), float64(480))}
-				foods[121] = food{vec: pixel.V(float64(320), float64(480))}
-				foods[122] = food{vec: pixel.V(float64(360), float64(480))}
-				foods[123] = food{vec: pixel.V(float64(400), float64(480))}
-				foods[124] = food{vec: pixel.V(float64(440), float64(480))}
-				foods[125] = food{vec: pixel.V(float64(485), float64(480))}
-				foods[126] = food{vec: pixel.V(float64(535), float64(480))}
-				foods[127] = food{vec: pixel.V(float64(580), float64(480))}
-				foods[128] = food{vec: pixel.V(float64(620), float64(480))}
-				foods[129] = food{vec: pixel.V(float64(660), float64(480))}
-				foods[130] = food{vec: pixel.V(float64(700), float64(480))}
-				foods[131] = food{vec: pixel.V(float64(980), float64(480))}
+				nodes[120] = node{vec: pixel.V(float64(40), float64(480))}
+				nodes[121] = node{vec: pixel.V(float64(320), float64(480))}
+				nodes[122] = node{vec: pixel.V(float64(360), float64(480))}
+				nodes[123] = node{vec: pixel.V(float64(400), float64(480))}
+				nodes[124] = node{vec: pixel.V(float64(440), float64(480))}
+				nodes[125] = node{vec: pixel.V(float64(485), float64(480))}
+				nodes[126] = node{vec: pixel.V(float64(535), float64(480))}
+				nodes[127] = node{vec: pixel.V(float64(580), float64(480))}
+				nodes[128] = node{vec: pixel.V(float64(620), float64(480))}
+				nodes[129] = node{vec: pixel.V(float64(660), float64(480))}
+				nodes[130] = node{vec: pixel.V(float64(700), float64(480))}
+				nodes[131] = node{vec: pixel.V(float64(980), float64(480))}
 			}
 			{ //row13
-				foods[132] = food{vec: pixel.V(float64(40), float64(520))}
-				foods[133] = food{vec: pixel.V(float64(320), float64(520))}
-				foods[134] = food{vec: pixel.V(float64(360), float64(520))}
-				foods[135] = food{vec: pixel.V(float64(400), float64(520))}
-				foods[136] = food{vec: pixel.V(float64(440), float64(520))}
-				foods[137] = food{vec: pixel.V(float64(580), float64(520))}
-				foods[138] = food{vec: pixel.V(float64(620), float64(520))}
-				foods[139] = food{vec: pixel.V(float64(660), float64(520))}
-				foods[140] = food{vec: pixel.V(float64(700), float64(520))}
-				foods[141] = food{vec: pixel.V(float64(980), float64(520))}
+				nodes[132] = node{vec: pixel.V(float64(40), float64(520))}
+				nodes[133] = node{vec: pixel.V(float64(320), float64(520))}
+				nodes[134] = node{vec: pixel.V(float64(360), float64(520))}
+				nodes[135] = node{vec: pixel.V(float64(400), float64(520))}
+				nodes[136] = node{vec: pixel.V(float64(440), float64(520))}
+				nodes[137] = node{vec: pixel.V(float64(580), float64(520))}
+				nodes[138] = node{vec: pixel.V(float64(620), float64(520))}
+				nodes[139] = node{vec: pixel.V(float64(660), float64(520))}
+				nodes[140] = node{vec: pixel.V(float64(700), float64(520))}
+				nodes[141] = node{vec: pixel.V(float64(980), float64(520))}
 			}
 			{ //row14
-				foods[142] = food{vec: pixel.V(float64(40), float64(560))}
-				foods[143] = food{vec: pixel.V(float64(320), float64(560))}
-				foods[144] = food{vec: pixel.V(float64(360), float64(560))}
-				foods[145] = food{vec: pixel.V(float64(400), float64(560))}
-				foods[146] = food{vec: pixel.V(float64(440), float64(560))}
-				foods[147] = food{vec: pixel.V(float64(580), float64(560))}
-				foods[148] = food{vec: pixel.V(float64(620), float64(560))}
-				foods[149] = food{vec: pixel.V(float64(660), float64(560))}
-				foods[150] = food{vec: pixel.V(float64(700), float64(560))}
-				foods[151] = food{vec: pixel.V(float64(980), float64(560))}
+				nodes[142] = node{vec: pixel.V(float64(40), float64(560))}
+				nodes[143] = node{vec: pixel.V(float64(320), float64(560))}
+				nodes[144] = node{vec: pixel.V(float64(360), float64(560))}
+				nodes[145] = node{vec: pixel.V(float64(400), float64(560))}
+				nodes[146] = node{vec: pixel.V(float64(440), float64(560))}
+				nodes[147] = node{vec: pixel.V(float64(580), float64(560))}
+				nodes[148] = node{vec: pixel.V(float64(620), float64(560))}
+				nodes[149] = node{vec: pixel.V(float64(660), float64(560))}
+				nodes[150] = node{vec: pixel.V(float64(700), float64(560))}
+				nodes[151] = node{vec: pixel.V(float64(980), float64(560))}
 			}
 			{ //row15
-				foods[152] = food{vec: pixel.V(float64(40), float64(600))}
-				foods[153] = food{vec: pixel.V(float64(320), float64(600))}
-				foods[154] = food{vec: pixel.V(float64(360), float64(600))}
-				foods[155] = food{vec: pixel.V(float64(400), float64(600))}
-				foods[156] = food{vec: pixel.V(float64(440), float64(600))}
-				foods[157] = food{vec: pixel.V(float64(580), float64(600))}
-				foods[158] = food{vec: pixel.V(float64(620), float64(600))}
-				foods[159] = food{vec: pixel.V(float64(660), float64(600))}
-				foods[160] = food{vec: pixel.V(float64(700), float64(600))}
-				foods[161] = food{vec: pixel.V(float64(980), float64(600))}
+				nodes[152] = node{vec: pixel.V(float64(40), float64(600))}
+				nodes[153] = node{vec: pixel.V(float64(320), float64(600))}
+				nodes[154] = node{vec: pixel.V(float64(360), float64(600))}
+				nodes[155] = node{vec: pixel.V(float64(400), float64(600))}
+				nodes[156] = node{vec: pixel.V(float64(440), float64(600))}
+				nodes[157] = node{vec: pixel.V(float64(580), float64(600))}
+				nodes[158] = node{vec: pixel.V(float64(620), float64(600))}
+				nodes[159] = node{vec: pixel.V(float64(660), float64(600))}
+				nodes[160] = node{vec: pixel.V(float64(700), float64(600))}
+				nodes[161] = node{vec: pixel.V(float64(980), float64(600))}
 			}
 			{ //row16
-				foods[162] = food{vec: pixel.V(float64(40), float64(640))}
-				foods[163] = food{vec: pixel.V(float64(320), float64(640))}
-				foods[164] = food{vec: pixel.V(float64(360), float64(640))}
-				foods[165] = food{vec: pixel.V(float64(400), float64(640))}
-				foods[166] = food{vec: pixel.V(float64(440), float64(640))}
-				foods[167] = food{vec: pixel.V(float64(580), float64(640))}
-				foods[168] = food{vec: pixel.V(float64(620), float64(640))}
-				foods[169] = food{vec: pixel.V(float64(660), float64(640))}
-				foods[170] = food{vec: pixel.V(float64(700), float64(640))}
-				foods[171] = food{vec: pixel.V(float64(980), float64(640))}
+				nodes[162] = node{vec: pixel.V(float64(40), float64(640))}
+				nodes[163] = node{vec: pixel.V(float64(320), float64(640))}
+				nodes[164] = node{vec: pixel.V(float64(360), float64(640))}
+				nodes[165] = node{vec: pixel.V(float64(400), float64(640))}
+				nodes[166] = node{vec: pixel.V(float64(440), float64(640))}
+				nodes[167] = node{vec: pixel.V(float64(580), float64(640))}
+				nodes[168] = node{vec: pixel.V(float64(620), float64(640))}
+				nodes[169] = node{vec: pixel.V(float64(660), float64(640))}
+				nodes[170] = node{vec: pixel.V(float64(700), float64(640))}
+				nodes[171] = node{vec: pixel.V(float64(980), float64(640))}
 			}
 			{ //row 17
-				foods[172] = food{vec: pixel.V(float64(40), float64(680))}
-				foods[173] = food{vec: pixel.V(float64(80), float64(680))}
-				foods[174] = food{vec: pixel.V(float64(120), float64(680))}
-				foods[175] = food{vec: pixel.V(float64(160), float64(680))}
-				foods[176] = food{vec: pixel.V(float64(200), float64(680))}
-				foods[177] = food{vec: pixel.V(float64(240), float64(680))}
-				foods[178] = food{vec: pixel.V(float64(280), float64(680))}
-				foods[179] = food{vec: pixel.V(float64(320), float64(680))}
-				foods[180] = food{vec: pixel.V(float64(360), float64(680))}
-				foods[181] = food{vec: pixel.V(float64(400), float64(680))}
-				foods[182] = food{vec: pixel.V(float64(440), float64(680))}
-				foods[183] = food{vec: pixel.V(float64(580), float64(680))}
-				foods[184] = food{vec: pixel.V(float64(620), float64(680))}
-				foods[185] = food{vec: pixel.V(float64(660), float64(680))}
-				foods[186] = food{vec: pixel.V(float64(700), float64(680))}
-				foods[187] = food{vec: pixel.V(float64(740), float64(680))}
-				foods[188] = food{vec: pixel.V(float64(780), float64(680))}
-				foods[189] = food{vec: pixel.V(float64(820), float64(680))}
-				foods[190] = food{vec: pixel.V(float64(860), float64(680))}
-				foods[191] = food{vec: pixel.V(float64(900), float64(680))}
-				foods[192] = food{vec: pixel.V(float64(940), float64(680))}
-				foods[193] = food{vec: pixel.V(float64(980), float64(680))}
+				nodes[172] = node{vec: pixel.V(float64(40), float64(680))}
+				nodes[173] = node{vec: pixel.V(float64(80), float64(680))}
+				nodes[174] = node{vec: pixel.V(float64(120), float64(680))}
+				nodes[175] = node{vec: pixel.V(float64(160), float64(680))}
+				nodes[176] = node{vec: pixel.V(float64(200), float64(680))}
+				nodes[177] = node{vec: pixel.V(float64(240), float64(680))}
+				nodes[178] = node{vec: pixel.V(float64(280), float64(680))}
+				nodes[179] = node{vec: pixel.V(float64(320), float64(680))}
+				nodes[180] = node{vec: pixel.V(float64(360), float64(680))}
+				nodes[181] = node{vec: pixel.V(float64(400), float64(680))}
+				nodes[182] = node{vec: pixel.V(float64(440), float64(680))}
+				nodes[183] = node{vec: pixel.V(float64(580), float64(680))}
+				nodes[184] = node{vec: pixel.V(float64(620), float64(680))}
+				nodes[185] = node{vec: pixel.V(float64(660), float64(680))}
+				nodes[186] = node{vec: pixel.V(float64(700), float64(680))}
+				nodes[187] = node{vec: pixel.V(float64(740), float64(680))}
+				nodes[188] = node{vec: pixel.V(float64(780), float64(680))}
+				nodes[189] = node{vec: pixel.V(float64(820), float64(680))}
+				nodes[190] = node{vec: pixel.V(float64(860), float64(680))}
+				nodes[191] = node{vec: pixel.V(float64(900), float64(680))}
+				nodes[192] = node{vec: pixel.V(float64(940), float64(680))}
+				nodes[193] = node{vec: pixel.V(float64(980), float64(680))}
 			}
 		}
 		imd.Color = colornames.Yellow
-		for _, singleFood := range foods {
-			imd.Push(singleFood.vec)
+		for _, singlenode := range nodes {
+			imd.Push(singlenode.vec)
 		}
 		imd.Circle(8, 0)
 
 	}
 }
 
-func ghostRun(ghost string, sprite *pixel.Sprite, pos pixel.Vec, win *pixelgl.Window) {
-	timeToInstruction := 4.0
-	ghostSpeed := 1.5
+func squareRun(pos pixel.Vec, win *pixelgl.Window) {
+	imd.Color = colornames.Red
+
+	timeToInstruction := 2.0
+	ghostSpeed := 10.5
 	last := time.Now()
-	sumTimePassed := 0.0
+	sumTimePassed := timeToInstruction
 	var seed int64
 	var current pixel.Vec
-	for _, c := range ghost {
+	for _, c := range "ghost" {
 		seed += int64(c)
 	}
 
@@ -390,19 +392,11 @@ func ghostRun(ghost string, sprite *pixel.Sprite, pos pixel.Vec, win *pixelgl.Wi
 	down := pixel.V(0, -.1*ghostSpeed)
 
 	for !win.Closed() {
-		//fmt.Println(r.Intn(4))
 		dt := time.Since(last).Seconds()
 		last = time.Now()
 		sumTimePassed += dt
-		mat := pixel.IM
-		mat = mat.Moved(pos)
-		if ghost == "inky" {
-			mat = mat.ScaledXY(pixel.ZV, pixel.V(0.25, 0.25))
-		} else {
-			mat = mat.ScaledXY(pixel.ZV, pixel.V(0.13, 0.13))
-		}
 		if sumTimePassed >= timeToInstruction {
-			random := rand.Int31n(3)
+			random := rand.Int31n(4)
 			switch random {
 			case 0:
 				current = left
@@ -415,8 +409,8 @@ func ghostRun(ghost string, sprite *pixel.Sprite, pos pixel.Vec, win *pixelgl.Wi
 			}
 			sumTimePassed = 0.0
 		}
-		if checkCollisionGhost(ghost, pos) || pos.X < 10 || pos.X > 1020 || pos.Y < 10 || pos.Y > 710 { //Check collision with all walls and the borders of the map
-			fmt.Printf("%s is collisioning\n", ghost)
+		if checkCollisionGhost(pos) || pos.X < 10 || pos.X > 1020 || pos.Y < 10 || pos.Y > 710 { //Check collision with all walls and the borders of the map
+			fmt.Printf("%s is collisioning\n", "Test")
 			current.X = -current.X
 			current.Y = -current.Y
 			pos.X += current.X
@@ -424,8 +418,12 @@ func ghostRun(ghost string, sprite *pixel.Sprite, pos pixel.Vec, win *pixelgl.Wi
 		}
 		pos.X += current.X
 		pos.Y += current.Y
-		mat = mat.Moved(pos)
-		sprite.Draw(win, mat)
+		square := imdraw.New(nil)
+		square.Color = colornames.Red
+		rect := pixel.R(pos.X, pos.Y, pos.X+20, pos.Y+20)
+		square.Push(rect.Min, rect.Max)
+		square.Rectangle(0)
+		square.Draw(win)
 	}
 }
 
@@ -459,16 +457,10 @@ func run() {
 		panic(err)
 	}
 
-	blinky, err := loadPicture("blinky.png")
-	if err != nil {
-		panic(err)
-	}
 	pacmanSpriteUp := pixel.NewSprite(pacmanUp, pacmanUp.Bounds())
 	pacmanSpriteDown := pixel.NewSprite(pacmanDown, pacmanDown.Bounds())
 	pacmanSpriteLeft := pixel.NewSprite(pacmanLeft, pacmanLeft.Bounds())
 	pacmanSpriteRight := pixel.NewSprite(pacmanRight, pacmanRight.Bounds())
-
-	blinkySprite := pixel.NewSprite(blinky, blinky.Bounds())
 
 	currentPos = pixel.V(350, 40) //Starting position
 
@@ -483,149 +475,162 @@ func run() {
 	hasWallDown := false
 
 	for i := 0; i < numGhosts; i++ {
-		go ghostRun("blinky", blinkySprite, pixel.V(float64(35*i)+25.0, 35), win)
+		//go ghostRun("blinky", blinkySprite, pixel.V(float64(35*i)+25.0, 35), win)
+		go squareRun(pixel.V(float64(35*i)+25.0, 35), win)
 	}
 
+	lastnodeEaten := 0
+	last := time.Now()
+	dtCheck := 0.0
 	for !win.Closed() {
+		dt := time.Since(last).Seconds()
+		last = time.Now()
+		dtCheck += dt
 		win.Clear(colornames.Black)
-		mat := pixel.IM
+		if dtCheck >= .0 {
 
-		for i, singleFood := range foods { //Draw and check collision with food
-			if checkCollision(currentPos, singleFood.vec) {
-				imd.Color = colornames.Black
-				imd.Push(singleFood.vec)
-				imd.Circle(8, 0)
-				delete(foods, i)
-				score += 100
-				fmt.Printf("Score: %d \n", score)
-				if len(foods) == 0 {
-					log.Println("YOU WIN!!")
-					os.Exit(0)
+			mat := pixel.IM
+
+			for i, singlenode := range nodes { //Draw and check collision with node
+				if checkCollision(currentPos, singlenode.vec) {
+					lastnodeEaten = i
+					imd.Color = colornames.Black
+					imd.Push(singlenode.vec)
+					imd.Circle(8, 0)
+					delete(nodes, i)
+					score += 100
+					//fmt.Printf("Score: %d \n", score)
+					fmt.Printf("Last node eaten: %d\n", lastnodeEaten)
+					if len(nodes) == 0 {
+						log.Println("YOU WIN!!")
+						os.Exit(0)
+					}
 				}
 			}
-		}
-		mat = mat.ScaledXY(pixel.ZV, pixel.V(0.80, 0.80))
-		imd.Draw(win)
+			mat = mat.ScaledXY(pixel.ZV, pixel.V(0.80, 0.80))
+			imd.Draw(win)
 
-		if shouldMoveLeft {
-			if !pause && currentPos.X > 25 && !hasWallLeft {
-				currentPos.X -= speed
-			}
-			mat = mat.Moved(currentPos)
-			pacmanSpriteLeft.Draw(win, mat)
-			if checkCollisionWall(currentPos, pixel.R(0, 360-30, 20, 360+30)) {
-				currentPos.X = 1024
-			}
-			for _, singeWall := range walls {
-				if checkCollisionWall(currentPos, singeWall.rect) && !hasWallRight && !hasWallUp && !hasWallDown {
-					hasWallLeft = true
+			if shouldMoveLeft {
+				if !pause && currentPos.X > 25 && !hasWallLeft {
+					currentPos.X -= speed
+				}
+				mat = mat.Moved(currentPos)
+				pacmanSpriteLeft.Draw(win, mat)
+				if checkCollisionWall(currentPos, pixel.R(0, 360-30, 20, 360+30)) {
+					currentPos.X = 1024
+				}
+				for _, singeWall := range walls {
+					if checkCollisionWall(currentPos, singeWall.rect) && !hasWallRight && !hasWallUp && !hasWallDown {
+						hasWallLeft = true
+					}
+				}
+				if !checkCollisionAllWalls(currentPos) {
+					hasWallUp = false
+					hasWallRight = false
+					hasWallDown = false
+				}
+			} else if shouldMoveRight {
+				if !pause && currentPos.X < 1000 && !hasWallRight {
+					currentPos.X += speed
+				}
+				mat = mat.Moved(currentPos)
+				pacmanSpriteRight.Draw(win, mat)
+				if checkCollisionWall(currentPos, pixel.R(1000, 360-30, 1024, 360+30)) {
+					currentPos.X = 0
+				}
+				for _, singeWall := range walls {
+					if checkCollisionWall(currentPos, singeWall.rect) && !hasWallLeft && !hasWallUp && !hasWallDown {
+						hasWallRight = true
+					}
+				}
+				if !checkCollisionAllWalls(currentPos) {
+					hasWallLeft = false
+					hasWallUp = false
+					hasWallDown = false
+				}
+			} else if shouldMoveUp {
+				if !pause && currentPos.Y < 695 && !hasWallUp {
+					currentPos.Y += speed
+				}
+				mat = mat.Moved(currentPos)
+				pacmanSpriteUp.Draw(win, mat)
+				for _, singeWall := range walls {
+					if checkCollisionWall(currentPos, singeWall.rect) && !hasWallRight && !hasWallLeft && !hasWallDown {
+						hasWallUp = true
+					}
+				}
+				if !checkCollisionAllWalls(currentPos) {
+					hasWallLeft = false
+					hasWallRight = false
+					hasWallDown = false
+				}
+			} else if shouldMoveDown {
+				if !pause && currentPos.Y > 25 && !hasWallDown {
+					currentPos.Y -= speed
+				}
+				mat = mat.Moved(currentPos)
+				pacmanSpriteDown.Draw(win, mat)
+				for _, singeWall := range walls {
+					if checkCollisionWall(currentPos, singeWall.rect) && !hasWallRight && !hasWallUp && !hasWallLeft {
+						hasWallDown = true
+					}
+				}
+				if !checkCollisionAllWalls(currentPos) {
+					hasWallLeft = false
+					hasWallRight = false
+					hasWallUp = false
 				}
 			}
-			if !checkCollisionAllWalls(currentPos) {
+
+			if win.Pressed(pixelgl.KeyLeft) {
+				if pause {
+					currentPos.X -= speed
+				}
+				pause = false
+				shouldMoveLeft = true
+				shouldMoveRight = false
+				shouldMoveUp = false
+				shouldMoveDown = false
+				hasWallRight = false
+			} else if win.Pressed(pixelgl.KeyRight) {
+				if pause {
+					currentPos.X += speed
+				}
+				pause = false
+				shouldMoveLeft = false
+				shouldMoveRight = true
+				shouldMoveUp = false
+				shouldMoveDown = false
+				hasWallLeft = false
+			} else if win.Pressed(pixelgl.KeyDown) {
+				if pause {
+					currentPos.Y -= speed
+				}
+				pause = false
+				shouldMoveLeft = false
+				shouldMoveRight = false
+				shouldMoveUp = false
+				shouldMoveDown = true
 				hasWallUp = false
-				hasWallRight = false
-				hasWallDown = false
-			}
-		} else if shouldMoveRight {
-			if !pause && currentPos.X < 1000 && !hasWallRight {
-				currentPos.X += speed
-			}
-			mat = mat.Moved(currentPos)
-			pacmanSpriteRight.Draw(win, mat)
-			if checkCollisionWall(currentPos, pixel.R(1000, 360-30, 1024, 360+30)) {
-				currentPos.X = 0
-			}
-			for _, singeWall := range walls {
-				if checkCollisionWall(currentPos, singeWall.rect) && !hasWallLeft && !hasWallUp && !hasWallDown {
-					hasWallRight = true
+			} else if win.Pressed(pixelgl.KeyUp) {
+				if pause {
+					currentPos.Y += speed
 				}
-			}
-			if !checkCollisionAllWalls(currentPos) {
-				hasWallLeft = false
-				hasWallUp = false
+				pause = false
+				shouldMoveLeft = false
+				shouldMoveRight = false
+				shouldMoveUp = true
+				shouldMoveDown = false
 				hasWallDown = false
-			}
-		} else if shouldMoveUp {
-			if !pause && currentPos.Y < 695 && !hasWallUp {
-				currentPos.Y += speed
-			}
-			mat = mat.Moved(currentPos)
-			pacmanSpriteUp.Draw(win, mat)
-			for _, singeWall := range walls {
-				if checkCollisionWall(currentPos, singeWall.rect) && !hasWallRight && !hasWallLeft && !hasWallDown {
-					hasWallUp = true
+				if !checkCollisionAllWalls(currentPos) {
+					hasWallLeft = false
+					hasWallRight = false
 				}
-			}
-			if !checkCollisionAllWalls(currentPos) {
-				hasWallLeft = false
-				hasWallRight = false
-				hasWallDown = false
-			}
-		} else if shouldMoveDown {
-			if !pause && currentPos.Y > 25 && !hasWallDown {
-				currentPos.Y -= speed
-			}
-			mat = mat.Moved(currentPos)
-			pacmanSpriteDown.Draw(win, mat)
-			for _, singeWall := range walls {
-				if checkCollisionWall(currentPos, singeWall.rect) && !hasWallRight && !hasWallUp && !hasWallLeft {
-					hasWallDown = true
-				}
-			}
-			if !checkCollisionAllWalls(currentPos) {
-				hasWallLeft = false
-				hasWallRight = false
-				hasWallUp = false
-			}
-		}
 
-		if win.Pressed(pixelgl.KeyLeft) {
-			if pause {
-				currentPos.X -= speed
 			}
-			pause = false
-			shouldMoveLeft = true
-			shouldMoveRight = false
-			shouldMoveUp = false
-			shouldMoveDown = false
-			hasWallRight = false
-		} else if win.Pressed(pixelgl.KeyRight) {
-			if pause {
-				currentPos.X += speed
-			}
-			pause = false
-			shouldMoveLeft = false
-			shouldMoveRight = true
-			shouldMoveUp = false
-			shouldMoveDown = false
-			hasWallLeft = false
-		} else if win.Pressed(pixelgl.KeyDown) {
-			if pause {
-				currentPos.Y -= speed
-			}
-			pause = false
-			shouldMoveLeft = false
-			shouldMoveRight = false
-			shouldMoveUp = false
-			shouldMoveDown = true
-			hasWallUp = false
-		} else if win.Pressed(pixelgl.KeyUp) {
-			if pause {
-				currentPos.Y += speed
-			}
-			pause = false
-			shouldMoveLeft = false
-			shouldMoveRight = false
-			shouldMoveUp = true
-			shouldMoveDown = false
-			hasWallDown = false
-			if !checkCollisionAllWalls(currentPos) {
-				hasWallLeft = false
-				hasWallRight = false
-			}
-
+			win.Update()
+			dtCheck = 0
 		}
-		win.Update()
 	}
 }
 
