@@ -103,7 +103,7 @@ int main()
                     free(statPath);
                     long memSize = (rss*4096)/1024; // # of pages * pagesize = size in bytes, /1024 = size in kbytes
                     //char* queEstaPasando = calloc(1, sizeof(char));
-                    //sfree(queEstaPasando);
+                    //free(queEstaPasando);
                     processes[i].memory = memSize; 
                     char* tempString1 = calloc(50, sizeof(char));
                     char* tempString2 = calloc(50, sizeof(char));
