@@ -38,10 +38,11 @@ var score = 0
 var numGhosts int
 var currentPos pixel.Vec
 var nodes = make(map[int]*Node, 250)
+var currentNodePacman *Node
 var walls = []wall{}
 
 func loadPicture(path string) (pixel.Picture, error) {
-	file, err := os.Open("../" + path)
+	file, err := os.Open("./assets/" + path)
 	if err != nil {
 		return nil, err
 	}
@@ -84,11 +85,6 @@ func checkCollisionGhost(vec pixel.Vec) bool {
 	if checkCollision(vec, currentPos) {
 		log.Printf("YOU LOSE!!")
 		os.Exit(0)
-	}
-	for _, singeWall := range walls {
-		if checkCollisionWall(vec, singeWall.rect) {
-			return true
-		}
 	}
 	return false
 }
@@ -230,13 +226,13 @@ func setUpLevel() {
 				nodes[64] = &Node{64, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(360), float64(240)), false}
 				nodes[65] = &Node{65, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(400), float64(240)), false}
 				nodes[66] = &Node{66, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(440), float64(240)), false}
-				nodes[72] = &Node{72, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(485), float64(240)), false}
-				nodes[73] = &Node{73, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(535), float64(240)), false}
-				nodes[67] = &Node{67, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(580), float64(240)), false}
-				nodes[68] = &Node{68, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(620), float64(240)), false}
-				nodes[69] = &Node{69, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(660), float64(240)), false}
-				nodes[70] = &Node{70, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(700), float64(240)), false}
-				nodes[71] = &Node{71, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(980), float64(240)), false}
+				nodes[67] = &Node{72, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(485), float64(240)), false}
+				nodes[68] = &Node{73, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(535), float64(240)), false}
+				nodes[69] = &Node{67, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(580), float64(240)), false}
+				nodes[70] = &Node{68, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(620), float64(240)), false}
+				nodes[71] = &Node{69, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(660), float64(240)), false}
+				nodes[72] = &Node{70, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(700), float64(240)), false}
+				nodes[73] = &Node{71, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(980), float64(240)), false}
 			}
 			{ //row7
 				nodes[74] = &Node{74, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(40), float64(280)), false}
@@ -252,139 +248,160 @@ func setUpLevel() {
 				nodes[82] = &Node{82, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(200), float64(320)), false}
 				nodes[83] = &Node{83, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(240), float64(320)), false}
 				nodes[84] = &Node{84, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(280), float64(320)), false}
-				nodes[86] = &Node{86, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(320), float64(320)), false}
-				nodes[87] = &Node{87, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(700), float64(320)), false}
-				nodes[88] = &Node{88, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(740), float64(320)), false}
-				nodes[89] = &Node{89, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(780), float64(320)), false}
-				nodes[90] = &Node{90, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(820), float64(320)), false}
-				nodes[91] = &Node{91, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(860), float64(320)), false}
-				nodes[92] = &Node{92, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(900), float64(320)), false}
-				nodes[93] = &Node{93, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(940), float64(320)), false}
-				nodes[94] = &Node{94, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(980), float64(320)), false}
+				nodes[85] = &Node{85, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(320), float64(320)), false}
+				nodes[86] = &Node{86, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(700), float64(320)), false}
+				nodes[87] = &Node{87, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(740), float64(320)), false}
+				nodes[88] = &Node{88, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(780), float64(320)), false}
+				nodes[89] = &Node{89, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(820), float64(320)), false}
+				nodes[90] = &Node{90, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(860), float64(320)), false}
+				nodes[91] = &Node{91, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(900), float64(320)), false}
+				nodes[92] = &Node{92, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(940), float64(320)), false}
+				nodes[93] = &Node{93, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(980), float64(320)), false}
 			}
 			{ //row9
-				nodes[95] = &Node{95, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(40), float64(360)), false}
-				nodes[96] = &Node{96, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(80), float64(360)), false}
-				nodes[97] = &Node{97, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(120), float64(360)), false}
-				nodes[98] = &Node{98, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(240), float64(360)), false}
-				nodes[99] = &Node{99, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(280), float64(360)), false}
-				nodes[194] = &Node{194, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(320), float64(360)), false}
-				nodes[195] = &Node{195, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(700), float64(360)), false}
-				nodes[196] = &Node{196, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(740), float64(360)), false}
-				nodes[197] = &Node{197, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(780), float64(360)), false}
-				nodes[198] = &Node{198, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(900), float64(360)), false}
-				nodes[199] = &Node{199, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(940), float64(360)), false}
-				nodes[200] = &Node{200, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(980), float64(360)), false}
+				nodes[94] = &Node{94, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(40), float64(360)), false}
+				nodes[95] = &Node{95, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(80), float64(360)), false}
+				nodes[96] = &Node{96, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(120), float64(360)), false}
+				nodes[97] = &Node{97, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(240), float64(360)), false}
+				nodes[98] = &Node{98, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(280), float64(360)), false}
+				nodes[99] = &Node{99, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(320), float64(360)), false}
+				nodes[100] = &Node{100, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(700), float64(360)), false}
+				nodes[101] = &Node{101, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(740), float64(360)), false}
+				nodes[102] = &Node{102, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(780), float64(360)), false}
+				nodes[103] = &Node{103, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(900), float64(360)), false}
+				nodes[104] = &Node{104, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(940), float64(360)), false}
+				nodes[105] = &Node{105, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(980), float64(360)), false}
 			}
 			{ //row10
-				nodes[100] = &Node{100, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(40), float64(400)), false}
-				nodes[101] = &Node{101, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(80), float64(400)), false}
-				nodes[102] = &Node{102, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(120), float64(400)), false}
-				nodes[103] = &Node{103, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(160), float64(400)), false}
-				nodes[104] = &Node{104, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(200), float64(400)), false}
-				nodes[105] = &Node{105, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(240), float64(400)), false}
-				nodes[106] = &Node{106, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(280), float64(400)), false}
-				nodes[107] = &Node{107, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(320), float64(400)), false}
-				nodes[108] = &Node{108, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(700), float64(400)), false}
-				nodes[109] = &Node{109, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(740), float64(400)), false}
-				nodes[110] = &Node{110, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(780), float64(400)), false}
-				nodes[111] = &Node{111, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(820), float64(400)), false}
-				nodes[112] = &Node{112, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(860), float64(400)), false}
-				nodes[113] = &Node{113, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(900), float64(400)), false}
-				nodes[114] = &Node{114, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(940), float64(400)), false}
-				nodes[115] = &Node{115, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(980), float64(400)), false}
+				nodes[106] = &Node{106, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(40), float64(400)), false}
+				nodes[107] = &Node{107, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(80), float64(400)), false}
+				nodes[108] = &Node{108, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(120), float64(400)), false}
+				nodes[109] = &Node{109, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(160), float64(400)), false}
+				nodes[110] = &Node{110, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(200), float64(400)), false}
+				nodes[111] = &Node{111, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(240), float64(400)), false}
+				nodes[112] = &Node{112, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(280), float64(400)), false}
+				nodes[113] = &Node{113, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(320), float64(400)), false}
+				nodes[114] = &Node{114, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(700), float64(400)), false}
+				nodes[115] = &Node{115, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(740), float64(400)), false}
+				nodes[116] = &Node{116, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(780), float64(400)), false}
+				nodes[117] = &Node{117, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(820), float64(400)), false}
+				nodes[118] = &Node{118, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(860), float64(400)), false}
+				nodes[119] = &Node{119, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(900), float64(400)), false}
+				nodes[120] = &Node{120, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(940), float64(400)), false}
+				nodes[121] = &Node{121, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(980), float64(400)), false}
 			}
 			{ //row11
-				nodes[116] = &Node{116, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(40), float64(440)), false}
-				nodes[117] = &Node{117, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(320), float64(440)), false}
-				nodes[118] = &Node{118, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(700), float64(440)), false}
-				nodes[119] = &Node{119, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(980), float64(440)), false}
+				nodes[122] = &Node{122, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(40), float64(440)), false}
+				nodes[123] = &Node{123, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(320), float64(440)), false}
+				nodes[124] = &Node{124, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(700), float64(440)), false}
+				nodes[125] = &Node{125, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(980), float64(440)), false}
 			}
 			{ //row12
-				nodes[120] = &Node{120, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(40), float64(480)), false}
-				nodes[121] = &Node{121, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(320), float64(480)), false}
-				nodes[122] = &Node{122, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(360), float64(480)), false}
-				nodes[123] = &Node{123, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(400), float64(480)), false}
-				nodes[124] = &Node{124, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(440), float64(480)), false}
-				nodes[125] = &Node{125, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(485), float64(480)), false}
-				nodes[126] = &Node{126, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(535), float64(480)), false}
-				nodes[127] = &Node{127, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(580), float64(480)), false}
-				nodes[128] = &Node{128, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(620), float64(480)), false}
-				nodes[129] = &Node{129, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(660), float64(480)), false}
-				nodes[130] = &Node{130, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(700), float64(480)), false}
-				nodes[131] = &Node{131, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(980), float64(480)), false}
+				nodes[126] = &Node{126, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(40), float64(480)), false}
+				nodes[127] = &Node{127, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(320), float64(480)), false}
+				nodes[128] = &Node{128, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(360), float64(480)), false}
+				nodes[129] = &Node{129, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(400), float64(480)), false}
+				nodes[130] = &Node{130, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(440), float64(480)), false}
+				nodes[131] = &Node{131, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(485), float64(480)), false}
+				nodes[132] = &Node{132, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(535), float64(480)), false}
+				nodes[133] = &Node{133, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(580), float64(480)), false}
+				nodes[134] = &Node{134, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(620), float64(480)), false}
+				nodes[135] = &Node{135, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(660), float64(480)), false}
+				nodes[136] = &Node{136, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(700), float64(480)), false}
+				nodes[137] = &Node{137, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(980), float64(480)), false}
 			}
 			{ //row13
-				nodes[132] = &Node{132, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(40), float64(520)), false}
-				nodes[133] = &Node{133, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(320), float64(520)), false}
-				nodes[134] = &Node{134, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(360), float64(520)), false}
-				nodes[135] = &Node{135, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(400), float64(520)), false}
-				nodes[136] = &Node{136, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(440), float64(520)), false}
-				nodes[137] = &Node{137, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(580), float64(520)), false}
-				nodes[138] = &Node{138, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(620), float64(520)), false}
-				nodes[139] = &Node{139, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(660), float64(520)), false}
-				nodes[140] = &Node{140, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(700), float64(520)), false}
-				nodes[141] = &Node{141, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(980), float64(520)), false}
+				nodes[138] = &Node{138, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(40), float64(520)), false}
+				nodes[139] = &Node{139, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(320), float64(520)), false}
+				nodes[140] = &Node{140, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(360), float64(520)), false}
+				nodes[141] = &Node{141, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(400), float64(520)), false}
+				nodes[142] = &Node{142, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(440), float64(520)), false}
+				nodes[143] = &Node{143, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(580), float64(520)), false}
+				nodes[144] = &Node{144, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(620), float64(520)), false}
+				nodes[145] = &Node{145, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(660), float64(520)), false}
+				nodes[146] = &Node{146, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(700), float64(520)), false}
+				nodes[147] = &Node{147, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(980), float64(520)), false}
 			}
 			{ //row14
-				nodes[142] = &Node{142, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(40), float64(560)), false}
-				nodes[143] = &Node{143, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(320), float64(560)), false}
-				nodes[144] = &Node{144, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(360), float64(560)), false}
-				nodes[145] = &Node{145, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(400), float64(560)), false}
-				nodes[146] = &Node{146, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(440), float64(560)), false}
-				nodes[147] = &Node{147, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(580), float64(560)), false}
-				nodes[148] = &Node{148, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(620), float64(560)), false}
-				nodes[149] = &Node{149, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(660), float64(560)), false}
-				nodes[150] = &Node{150, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(700), float64(560)), false}
-				nodes[151] = &Node{151, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(980), float64(560)), false}
+				nodes[148] = &Node{148, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(40), float64(560)), false}
+				nodes[149] = &Node{149, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(320), float64(560)), false}
+				nodes[150] = &Node{150, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(360), float64(560)), false}
+				nodes[151] = &Node{151, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(400), float64(560)), false}
+				nodes[152] = &Node{152, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(440), float64(560)), false}
+				nodes[153] = &Node{153, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(580), float64(560)), false}
+				nodes[154] = &Node{154, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(620), float64(560)), false}
+				nodes[155] = &Node{155, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(660), float64(560)), false}
+				nodes[156] = &Node{156, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(700), float64(560)), false}
+				nodes[157] = &Node{157, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(980), float64(560)), false}
 			}
 			{ //row15
-				nodes[152] = &Node{152, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(40), float64(600)), false}
-				nodes[153] = &Node{153, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(320), float64(600)), false}
-				nodes[154] = &Node{154, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(360), float64(600)), false}
-				nodes[155] = &Node{155, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(400), float64(600)), false}
-				nodes[156] = &Node{156, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(440), float64(600)), false}
-				nodes[157] = &Node{157, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(580), float64(600)), false}
-				nodes[158] = &Node{158, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(620), float64(600)), false}
-				nodes[159] = &Node{159, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(660), float64(600)), false}
-				nodes[160] = &Node{160, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(700), float64(600)), false}
-				nodes[161] = &Node{161, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(980), float64(600)), false}
+				nodes[158] = &Node{158, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(40), float64(600)), false}
+				nodes[159] = &Node{159, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(320), float64(600)), false}
+				nodes[160] = &Node{160, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(360), float64(600)), false}
+				nodes[161] = &Node{161, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(400), float64(600)), false}
+				nodes[162] = &Node{162, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(440), float64(600)), false}
+				nodes[163] = &Node{163, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(580), float64(600)), false}
+				nodes[164] = &Node{164, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(620), float64(600)), false}
+				nodes[165] = &Node{165, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(660), float64(600)), false}
+				nodes[166] = &Node{166, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(700), float64(600)), false}
+				nodes[167] = &Node{167, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(980), float64(600)), false}
 			}
 			{ //row16
-				nodes[162] = &Node{162, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(40), float64(640)), false}
-				nodes[163] = &Node{163, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(320), float64(640)), false}
-				nodes[164] = &Node{164, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(360), float64(640)), false}
-				nodes[165] = &Node{165, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(400), float64(640)), false}
-				nodes[166] = &Node{166, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(440), float64(640)), false}
-				nodes[167] = &Node{167, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(580), float64(640)), false}
-				nodes[168] = &Node{168, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(620), float64(640)), false}
-				nodes[169] = &Node{169, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(660), float64(640)), false}
-				nodes[170] = &Node{170, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(700), float64(640)), false}
-				nodes[171] = &Node{171, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(980), float64(640)), false}
+				nodes[168] = &Node{168, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(40), float64(640)), false}
+				nodes[169] = &Node{169, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(320), float64(640)), false}
+				nodes[170] = &Node{170, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(360), float64(640)), false}
+				nodes[171] = &Node{171, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(400), float64(640)), false}
+				nodes[172] = &Node{172, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(440), float64(640)), false}
+				nodes[173] = &Node{173, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(580), float64(640)), false}
+				nodes[174] = &Node{174, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(620), float64(640)), false}
+				nodes[175] = &Node{175, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(660), float64(640)), false}
+				nodes[176] = &Node{176, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(700), float64(640)), false}
+				nodes[177] = &Node{177, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(980), float64(640)), false}
 			}
 			{ //row 17
-				nodes[172] = &Node{172, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(40), float64(680)), false}
-				nodes[173] = &Node{173, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(80), float64(680)), false}
-				nodes[174] = &Node{174, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(120), float64(680)), false}
-				nodes[175] = &Node{175, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(160), float64(680)), false}
-				nodes[176] = &Node{176, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(200), float64(680)), false}
-				nodes[177] = &Node{177, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(240), float64(680)), false}
-				nodes[178] = &Node{178, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(280), float64(680)), false}
-				nodes[179] = &Node{179, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(320), float64(680)), false}
-				nodes[180] = &Node{180, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(360), float64(680)), false}
-				nodes[181] = &Node{181, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(400), float64(680)), false}
-				nodes[182] = &Node{182, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(440), float64(680)), false}
-				nodes[183] = &Node{183, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(580), float64(680)), false}
-				nodes[184] = &Node{184, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(620), float64(680)), false}
-				nodes[185] = &Node{185, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(660), float64(680)), false}
-				nodes[186] = &Node{186, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(700), float64(680)), false}
-				nodes[187] = &Node{187, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(740), float64(680)), false}
-				nodes[188] = &Node{188, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(780), float64(680)), false}
-				nodes[189] = &Node{189, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(820), float64(680)), false}
-				nodes[190] = &Node{190, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(860), float64(680)), false}
-				nodes[191] = &Node{191, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(900), float64(680)), false}
-				nodes[192] = &Node{192, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(940), float64(680)), false}
-				nodes[193] = &Node{193, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(980), float64(680)), false}
+				nodes[178] = &Node{178, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(40), float64(680)), false}
+				nodes[179] = &Node{179, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(80), float64(680)), false}
+				nodes[180] = &Node{180, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(120), float64(680)), false}
+				nodes[181] = &Node{181, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(160), float64(680)), false}
+				nodes[182] = &Node{182, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(200), float64(680)), false}
+				nodes[183] = &Node{183, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(240), float64(680)), false}
+				nodes[184] = &Node{184, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(280), float64(680)), false}
+				nodes[185] = &Node{185, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(320), float64(680)), false}
+				nodes[186] = &Node{186, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(360), float64(680)), false}
+				nodes[187] = &Node{187, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(400), float64(680)), false}
+				nodes[188] = &Node{188, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(440), float64(680)), false}
+				nodes[189] = &Node{189, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(580), float64(680)), false}
+				nodes[190] = &Node{190, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(620), float64(680)), false}
+				nodes[191] = &Node{191, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(660), float64(680)), false}
+				nodes[192] = &Node{192, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(700), float64(680)), false}
+				nodes[193] = &Node{193, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(740), float64(680)), false}
+				nodes[194] = &Node{194, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(780), float64(680)), false}
+				nodes[195] = &Node{195, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(820), float64(680)), false}
+				nodes[196] = &Node{196, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(860), float64(680)), false}
+				nodes[197] = &Node{197, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(900), float64(680)), false}
+				nodes[198] = &Node{198, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(940), float64(680)), false}
+				nodes[199] = &Node{199, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(980), float64(680)), false}
+			}
+			{ //Inside Square
+				nodes[200] = &Node{200, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(440), float64(320)), true}
+				nodes[201] = &Node{201, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(485), float64(320)), true}
+				nodes[202] = &Node{202, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(535), float64(320)), true}
+				nodes[203] = &Node{203, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(580), float64(320)), true}
+
+				nodes[204] = &Node{204, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(440), float64(360)), true}
+				nodes[205] = &Node{205, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(485), float64(360)), true}
+				nodes[206] = &Node{206, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(535), float64(360)), true}
+				nodes[207] = &Node{207, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(580), float64(360)), true}
+
+				nodes[208] = &Node{208, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(440), float64(400)), true}
+				nodes[209] = &Node{209, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(485), float64(400)), true}
+				nodes[210] = &Node{210, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(535), float64(400)), true}
+				nodes[211] = &Node{211, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(580), float64(400)), true}
+
+				nodes[212] = &Node{212, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(440), float64(440)), true}
+				nodes[213] = &Node{213, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(485), float64(440)), true}
+				nodes[214] = &Node{214, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(535), float64(440)), true}
+				nodes[215] = &Node{215, make([]*Node, 0, 10), make([]*Node, 0, 300), pixel.V(float64(580), float64(440)), true}
 			}
 		}
 
@@ -415,23 +432,23 @@ func setUpLevel() {
 
 			nodes[22].neighbors = append(nodes[22].neighbors, nodes[0], nodes[32])
 			nodes[23].neighbors = append(nodes[23].neighbors, nodes[7], nodes[24], nodes[33])
-			nodes[24].neighbors = append(nodes[24].neighbors, nodes[8], nodes[23], nodes[24], nodes[34])
+			nodes[24].neighbors = append(nodes[24].neighbors, nodes[8], nodes[23], nodes[25], nodes[34])
 			nodes[25].neighbors = append(nodes[25].neighbors, nodes[9], nodes[24], nodes[26], nodes[35])
-			nodes[26].neighbors = append(nodes[26].neighbors, nodes[10], nodes[24], nodes[36])
+			nodes[26].neighbors = append(nodes[26].neighbors, nodes[10], nodes[25], nodes[36])
 			nodes[27].neighbors = append(nodes[27].neighbors, nodes[11], nodes[28], nodes[37])
 			nodes[28].neighbors = append(nodes[28].neighbors, nodes[12], nodes[27], nodes[29], nodes[38])
 			nodes[29].neighbors = append(nodes[29].neighbors, nodes[13], nodes[28], nodes[30], nodes[39])
 			nodes[30].neighbors = append(nodes[30].neighbors, nodes[14], nodes[29], nodes[40])
 			nodes[31].neighbors = append(nodes[31].neighbors, nodes[21], nodes[41])
 
-			nodes[32].neighbors = append(nodes[32].neighbors /*nodes[85,*/, nodes[22], nodes[42])
+			nodes[32].neighbors = append(nodes[32].neighbors, nodes[22], nodes[42])
 			nodes[33].neighbors = append(nodes[33].neighbors, nodes[23], nodes[34], nodes[43])
 			nodes[34].neighbors = append(nodes[34].neighbors, nodes[24], nodes[33], nodes[35], nodes[44])
 			nodes[35].neighbors = append(nodes[35].neighbors, nodes[25], nodes[34], nodes[36], nodes[45])
 			nodes[36].neighbors = append(nodes[36].neighbors, nodes[26], nodes[35], nodes[46])
 			nodes[37].neighbors = append(nodes[37].neighbors, nodes[27], nodes[38], nodes[47])
 			nodes[38].neighbors = append(nodes[38].neighbors, nodes[28], nodes[37], nodes[39], nodes[48])
-			nodes[39].neighbors = append(nodes[39].neighbors, nodes[29], nodes[37], nodes[40], nodes[49])
+			nodes[39].neighbors = append(nodes[39].neighbors, nodes[29], nodes[38], nodes[40], nodes[49])
 			nodes[40].neighbors = append(nodes[40].neighbors, nodes[30], nodes[39], nodes[50])
 			nodes[41].neighbors = append(nodes[41].neighbors, nodes[31], nodes[51])
 
@@ -442,7 +459,7 @@ func setUpLevel() {
 			nodes[46].neighbors = append(nodes[46].neighbors, nodes[36], nodes[45], nodes[56])
 			nodes[47].neighbors = append(nodes[47].neighbors, nodes[37], nodes[48], nodes[57])
 			nodes[48].neighbors = append(nodes[48].neighbors, nodes[38], nodes[47], nodes[49], nodes[58])
-			nodes[49].neighbors = append(nodes[49].neighbors, nodes[39], nodes[47], nodes[50], nodes[59])
+			nodes[49].neighbors = append(nodes[49].neighbors, nodes[39], nodes[48], nodes[50], nodes[59])
 			nodes[50].neighbors = append(nodes[50].neighbors, nodes[40], nodes[49], nodes[60])
 			nodes[51].neighbors = append(nodes[51].neighbors, nodes[41], nodes[61])
 
@@ -453,7 +470,7 @@ func setUpLevel() {
 			nodes[56].neighbors = append(nodes[56].neighbors, nodes[46], nodes[55], nodes[66])
 			nodes[57].neighbors = append(nodes[57].neighbors, nodes[47], nodes[58], nodes[69])
 			nodes[58].neighbors = append(nodes[58].neighbors, nodes[48], nodes[57], nodes[59], nodes[70])
-			nodes[59].neighbors = append(nodes[59].neighbors, nodes[49], nodes[57], nodes[60], nodes[71])
+			nodes[59].neighbors = append(nodes[59].neighbors, nodes[49], nodes[58], nodes[60], nodes[71])
 			nodes[60].neighbors = append(nodes[60].neighbors, nodes[50], nodes[59], nodes[72])
 			nodes[61].neighbors = append(nodes[61].neighbors, nodes[51], nodes[73])
 
@@ -471,7 +488,7 @@ func setUpLevel() {
 			nodes[73].neighbors = append(nodes[73].neighbors, nodes[61], nodes[77])
 
 			nodes[74].neighbors = append(nodes[74].neighbors, nodes[62], nodes[78])
-			nodes[75].neighbors = append(nodes[75].neighbors, nodes[63] /*nodes[85]*/)
+			nodes[75].neighbors = append(nodes[75].neighbors, nodes[63], nodes[85])
 			nodes[76].neighbors = append(nodes[76].neighbors, nodes[72], nodes[86])
 			nodes[77].neighbors = append(nodes[77].neighbors, nodes[73], nodes[93])
 
@@ -481,9 +498,9 @@ func setUpLevel() {
 			nodes[81].neighbors = append(nodes[81].neighbors, nodes[80], nodes[82])
 			nodes[82].neighbors = append(nodes[82].neighbors, nodes[81], nodes[83])
 			nodes[83].neighbors = append(nodes[83].neighbors, nodes[82], nodes[84], nodes[97])
-			nodes[84].neighbors = append(nodes[84].neighbors, nodes[83] /*nodes[85],*/, nodes[98])
-			//nodes[85].neighbors = append(nodes[85].neighbors, nodes[75], nodes[84], nodes[99])
-			nodes[86].neighbors = append(nodes[86].neighbors, nodes[84], nodes[87], nodes[100])
+			nodes[84].neighbors = append(nodes[84].neighbors, nodes[83], nodes[85], nodes[98])
+			nodes[85].neighbors = append(nodes[85].neighbors, nodes[75], nodes[84], nodes[99])
+			nodes[86].neighbors = append(nodes[86].neighbors, nodes[76], nodes[87], nodes[100])
 			nodes[87].neighbors = append(nodes[87].neighbors, nodes[86], nodes[88], nodes[101])
 			nodes[88].neighbors = append(nodes[88].neighbors, nodes[87], nodes[89], nodes[102])
 			nodes[89].neighbors = append(nodes[89].neighbors, nodes[88], nodes[90])
@@ -496,10 +513,10 @@ func setUpLevel() {
 			nodes[95].neighbors = append(nodes[95].neighbors, nodes[79], nodes[94], nodes[96], nodes[107])
 			nodes[96].neighbors = append(nodes[96].neighbors, nodes[80], nodes[95], nodes[108])
 			nodes[97].neighbors = append(nodes[97].neighbors, nodes[83], nodes[98], nodes[111])
-			nodes[98].neighbors = append(nodes[98].neighbors, nodes[84], nodes[99], nodes[112])
-			nodes[99].neighbors = append(nodes[99].neighbors /*nodes[85]*/, nodes[98], nodes[113])
+			nodes[98].neighbors = append(nodes[98].neighbors, nodes[84], nodes[97], nodes[99], nodes[112])
+			nodes[99].neighbors = append(nodes[99].neighbors, nodes[85], nodes[98], nodes[113])
 			nodes[100].neighbors = append(nodes[100].neighbors, nodes[86], nodes[101], nodes[114])
-			nodes[101].neighbors = append(nodes[101].neighbors, nodes[87], nodes[88], nodes[102], nodes[115])
+			nodes[101].neighbors = append(nodes[101].neighbors, nodes[87], nodes[100], nodes[102], nodes[115])
 			nodes[102].neighbors = append(nodes[102].neighbors, nodes[88], nodes[101], nodes[116])
 			nodes[103].neighbors = append(nodes[103].neighbors, nodes[91], nodes[104], nodes[119])
 			nodes[104].neighbors = append(nodes[104].neighbors, nodes[92], nodes[103], nodes[105], nodes[120])
@@ -511,9 +528,9 @@ func setUpLevel() {
 			nodes[109].neighbors = append(nodes[109].neighbors, nodes[108], nodes[110])
 			nodes[110].neighbors = append(nodes[110].neighbors, nodes[109], nodes[111])
 			nodes[111].neighbors = append(nodes[111].neighbors, nodes[97], nodes[110], nodes[112])
-			nodes[112].neighbors = append(nodes[112].neighbors, nodes[98], nodes[111], nodes[103])
+			nodes[112].neighbors = append(nodes[112].neighbors, nodes[98], nodes[111], nodes[113])
 			nodes[113].neighbors = append(nodes[113].neighbors, nodes[99], nodes[112], nodes[123])
-			nodes[114].neighbors = append(nodes[114].neighbors, nodes[100], nodes[101], nodes[124])
+			nodes[114].neighbors = append(nodes[114].neighbors, nodes[100], nodes[115], nodes[124])
 			nodes[115].neighbors = append(nodes[115].neighbors, nodes[101], nodes[114], nodes[116])
 			nodes[116].neighbors = append(nodes[116].neighbors, nodes[102], nodes[115], nodes[117])
 			nodes[117].neighbors = append(nodes[117].neighbors, nodes[116], nodes[118])
@@ -528,7 +545,7 @@ func setUpLevel() {
 			nodes[125].neighbors = append(nodes[125].neighbors, nodes[121], nodes[137])
 
 			nodes[126].neighbors = append(nodes[126].neighbors, nodes[122], nodes[138])
-			nodes[127].neighbors = append(nodes[127].neighbors, nodes[123], nodes[124], nodes[139])
+			nodes[127].neighbors = append(nodes[127].neighbors, nodes[123], nodes[128], nodes[139])
 			nodes[128].neighbors = append(nodes[128].neighbors, nodes[127], nodes[129], nodes[140])
 			nodes[129].neighbors = append(nodes[129].neighbors, nodes[128], nodes[130], nodes[141])
 			nodes[130].neighbors = append(nodes[130].neighbors, nodes[129], nodes[131], nodes[142])
@@ -551,22 +568,22 @@ func setUpLevel() {
 			nodes[146].neighbors = append(nodes[146].neighbors, nodes[136], nodes[145], nodes[156])
 			nodes[147].neighbors = append(nodes[147].neighbors, nodes[137], nodes[157])
 
-			nodes[148].neighbors = append(nodes[148].neighbors, nodes[136], nodes[158])
-			nodes[149].neighbors = append(nodes[149].neighbors, nodes[137], nodes[150], nodes[159])
-			nodes[150].neighbors = append(nodes[150].neighbors, nodes[138], nodes[149], nodes[151], nodes[160])
-			nodes[151].neighbors = append(nodes[151].neighbors, nodes[139], nodes[150], nodes[152], nodes[161])
-			nodes[152].neighbors = append(nodes[152].neighbors, nodes[140], nodes[151], nodes[162])
+			nodes[148].neighbors = append(nodes[148].neighbors, nodes[138], nodes[158])
+			nodes[149].neighbors = append(nodes[149].neighbors, nodes[139], nodes[150], nodes[159])
+			nodes[150].neighbors = append(nodes[150].neighbors, nodes[140], nodes[149], nodes[151], nodes[160])
+			nodes[151].neighbors = append(nodes[151].neighbors, nodes[141], nodes[150], nodes[152], nodes[161])
+			nodes[152].neighbors = append(nodes[152].neighbors, nodes[142], nodes[151], nodes[162])
 			nodes[153].neighbors = append(nodes[153].neighbors, nodes[143], nodes[154], nodes[163])
 			nodes[154].neighbors = append(nodes[154].neighbors, nodes[144], nodes[153], nodes[155], nodes[164])
 			nodes[155].neighbors = append(nodes[155].neighbors, nodes[145], nodes[154], nodes[156], nodes[165])
 			nodes[156].neighbors = append(nodes[156].neighbors, nodes[146], nodes[155], nodes[166])
 			nodes[157].neighbors = append(nodes[157].neighbors, nodes[147], nodes[167])
 
-			nodes[158].neighbors = append(nodes[158].neighbors, nodes[146], nodes[168])
-			nodes[159].neighbors = append(nodes[159].neighbors, nodes[147], nodes[160], nodes[169])
-			nodes[160].neighbors = append(nodes[160].neighbors, nodes[148], nodes[159], nodes[161], nodes[170])
-			nodes[161].neighbors = append(nodes[161].neighbors, nodes[149], nodes[160], nodes[162], nodes[171])
-			nodes[162].neighbors = append(nodes[162].neighbors, nodes[150], nodes[161], nodes[172])
+			nodes[158].neighbors = append(nodes[158].neighbors, nodes[148], nodes[168])
+			nodes[159].neighbors = append(nodes[159].neighbors, nodes[149], nodes[160], nodes[169])
+			nodes[160].neighbors = append(nodes[160].neighbors, nodes[150], nodes[159], nodes[161], nodes[170])
+			nodes[161].neighbors = append(nodes[161].neighbors, nodes[151], nodes[160], nodes[162], nodes[171])
+			nodes[162].neighbors = append(nodes[162].neighbors, nodes[152], nodes[161], nodes[172])
 			nodes[163].neighbors = append(nodes[163].neighbors, nodes[153], nodes[164], nodes[173])
 			nodes[164].neighbors = append(nodes[164].neighbors, nodes[154], nodes[163], nodes[165], nodes[174])
 			nodes[165].neighbors = append(nodes[165].neighbors, nodes[155], nodes[164], nodes[166], nodes[175])
@@ -606,62 +623,88 @@ func setUpLevel() {
 			nodes[197].neighbors = append(nodes[197].neighbors, nodes[196], nodes[198])
 			nodes[198].neighbors = append(nodes[198].neighbors, nodes[197], nodes[199])
 			nodes[199].neighbors = append(nodes[199].neighbors, nodes[177], nodes[198])
-			nodes[200].neighbors = append(nodes[200].neighbors, nodes[178], nodes[199])
+
+			nodes[200].neighbors = append(nodes[200].neighbors, nodes[201], nodes[204])
+			nodes[201].neighbors = append(nodes[201].neighbors, nodes[200], nodes[202], nodes[205])
+			nodes[202].neighbors = append(nodes[202].neighbors, nodes[201], nodes[203], nodes[206])
+			nodes[203].neighbors = append(nodes[203].neighbors, nodes[202], nodes[207])
+
+			nodes[204].neighbors = append(nodes[204].neighbors, nodes[200], nodes[205], nodes[208])
+			nodes[205].neighbors = append(nodes[205].neighbors, nodes[201], nodes[204], nodes[206], nodes[209])
+			nodes[206].neighbors = append(nodes[206].neighbors, nodes[202], nodes[205], nodes[207], nodes[210])
+			nodes[207].neighbors = append(nodes[207].neighbors, nodes[203], nodes[206], nodes[211])
+
+			nodes[208].neighbors = append(nodes[208].neighbors, nodes[204], nodes[209], nodes[212])
+			nodes[209].neighbors = append(nodes[209].neighbors, nodes[205], nodes[208], nodes[210], nodes[213])
+			nodes[210].neighbors = append(nodes[210].neighbors, nodes[206], nodes[209], nodes[211], nodes[214])
+			nodes[211].neighbors = append(nodes[211].neighbors, nodes[207], nodes[210], nodes[215])
+
+			nodes[212].neighbors = append(nodes[212].neighbors, nodes[208], nodes[213], nodes[130])
+			nodes[213].neighbors = append(nodes[213].neighbors, nodes[209], nodes[212], nodes[214], nodes[131])
+			nodes[214].neighbors = append(nodes[214].neighbors, nodes[210], nodes[213], nodes[215], nodes[132])
+			nodes[215].neighbors = append(nodes[215].neighbors, nodes[211], nodes[214], nodes[133])
+
 		}
 
 		imd.Color = colornames.Yellow
 		for _, singlenode := range nodes {
-			imd.Push(singlenode.vec)
+			if !singlenode.isEaten {
+				imd.Push(singlenode.vec)
+			}
 		}
 		imd.Circle(7, 0)
 
 	}
 }
 
-func squareRun(pos pixel.Vec, win *pixelgl.Window) {
+func squareRun(currentNodeGhost *Node, win *pixelgl.Window) {
 	imd.Color = colornames.Red
 
-	timeToInstruction := 2.0
-	ghostSpeed := 1000.5
+	timeToInstruction := 80.5
+	timeToJump := 0.16
 	last := time.Now()
 	sumTimePassed := timeToInstruction
-	var seed int64
-	var current pixel.Vec
-	for _, c := range "ghost" {
-		seed += int64(c)
-	}
+	sumTimePassedJump := timeToJump
+	posInPath := 0
+	var ghostPath []*Node
+	pos := currentNodeGhost.vec
 
 	for !win.Closed() {
 		dt := time.Since(last).Seconds()
 		last = time.Now()
-		left := pixel.V(-.1*ghostSpeed*dt, 0)
-		right := pixel.V(.1*ghostSpeed*dt, 0)
-		up := pixel.V(0, .1*ghostSpeed*dt)
-		down := pixel.V(0, -.1*ghostSpeed*dt)
 		sumTimePassed += dt
+		sumTimePassedJump += dt
+		checkCollisionGhost(pos)
 		if sumTimePassed >= timeToInstruction {
-			random := rand.Int31n(4)
-			switch random {
-			case 0:
-				current = left
-			case 1:
-				current = right
-			case 2:
-				current = up
-			case 3:
-				current = down
+			posInPath = 0
+			for _, singleNode := range nodes {
+				if checkCollision(pos, singleNode.vec) {
+					currentNodeGhost = singleNode
+					break
+				}
+			}
+			if currentNodeGhost != nil {
+				ghostPath = Breadthwise(*currentNodeGhost, *currentNodePacman)
 			}
 			sumTimePassed = 0.0
 		}
-		if checkCollisionGhost(pos) || pos.X < 10 || pos.X > 1020 || pos.Y < 10 || pos.Y > 710 { //Check collision with all walls and the borders of the map
-			//fmt.Printf("%s is collisioning\n", "Test")
-			current.X = -current.X
-			current.Y = -current.Y
-			pos.X += current.X
-			pos.Y += current.Y
+
+		if sumTimePassedJump >= timeToJump {
+			if len(ghostPath) > 1 {
+				currentNodeGhost = ghostPath[posInPath]
+				pos = ghostPath[posInPath].vec
+				posInPath++
+				sumTimePassedJump = 0
+				if posInPath >= len(ghostPath) {
+					sumTimePassed += 100
+					posInPath = 0
+				}
+			} else {
+
+			}
+
 		}
-		pos.X += current.X
-		pos.Y += current.Y
+
 		square := imdraw.New(nil)
 		square.Color = colornames.Red
 		rect := pixel.R(pos.X, pos.Y, pos.X+20, pos.Y+20)
@@ -683,6 +726,7 @@ func run() {
 	}
 
 	setUpLevel()
+	currentNodePacman = nodes[20]
 
 	pacmanDown, err := loadPicture("PacmanDown.png")
 	if err != nil {
@@ -719,8 +763,7 @@ func run() {
 	hasWallDown := false
 
 	for i := 0; i < numGhosts; i++ {
-		//go ghostRun("blinky", blinkySprite, pixel.V(float64(35*i)+25.0, 35), win)
-		go squareRun(pixel.V(float64(35*i)+25.0, 35), win)
+		go squareRun(nodes[(200+i)%215], win)
 	}
 
 	nodesEaten := 0
@@ -734,26 +777,23 @@ func run() {
 
 		for _, singlenode := range nodes { //Draw and check collision with node
 			if checkCollision(currentPos, singlenode.vec) {
-				//lastnodeEaten = i
+				currentNodePacman = singlenode
 				if !singlenode.isEaten {
 					imd.Color = colornames.Black
 					imd.Push(singlenode.vec)
 					imd.Circle(8, 0)
-					//delete(nodes, i)
 					score += 100
 					nodesEaten++
-					//fmt.Printf("Score: %d \n", score)
-					//fmt.Printf("Last node eaten: %d\n", lastnodeEaten)
-					if nodesEaten == len(nodes) {
+					fmt.Printf("Score: %d \n", score)
+					if nodesEaten == len(nodes)-16 {
 						log.Println("YOU WIN!!")
 						os.Exit(0)
 					}
 				}
 				singlenode.isEaten = true
-				printNode(*singlenode)
 			}
 		}
-		mat = mat.ScaledXY(pixel.ZV, pixel.V(0.70, 0.70))
+		mat = mat.ScaledXY(pixel.ZV, pixel.V(0.72, 0.72))
 		imd.Draw(win)
 
 		if shouldMoveLeft {
@@ -895,8 +935,9 @@ func contains(s []*Node, e *Node) bool {
 }
 
 func Breadthwise(start, end Node) []*Node {
-	start.history = start.history[:0]
 	size := 300
+
+	start.history = start.history[:0]
 	result := make([]*Node, 0, size)
 
 	visited := make([]*Node, 0, size)
@@ -929,6 +970,40 @@ func Breadthwise(start, end Node) []*Node {
 	return nil
 }
 
+func Depthwise(start, end Node) []*Node {
+	size := 300
+
+	result := make([]*Node, 0, size)
+	visited := make([]*Node, 0, size)
+	work := make([]*Node, 0, size)
+	var current *Node
+	var currentSon *Node
+
+	start.history = start.history[:0]
+	visited = append(visited, &start)
+	work = append([]*Node{&start}, work...) //work.Enqueue(start)
+
+	for len(work) > 0 {
+		current, work = work[len(work)-1], work[:len(work)-1]
+		if current.compare(end) {
+			result = current.history
+			result = append(result, current)
+			return result
+		} else {
+			for _, node := range current.neighbors {
+				currentSon = node
+				if !contains(visited, currentSon) {
+					visited = append(visited, currentSon)
+					currentSon.history = current.history
+					currentSon.history = append(currentSon.history, current)
+					work = append([]*Node{currentSon}, work...) //work.push(currentSon)
+				}
+			}
+		}
+	}
+	return nil
+}
+
 func main() {
 	//usage: go run pacman.go -g <numGhosts>
 	numGhosts, _ = strconv.Atoi(os.Args[2])
@@ -937,7 +1012,13 @@ func main() {
 
 	/*setUpLevel()
 
-	res := Breadthwise(*nodes[0], *nodes[160])
+	res := Depthwise(*nodes[0], *nodes[20])
+	for _, n := range res {
+		fmt.Printf("-> %d ", n.id)
+	}
+	fmt.Println()
+
+	res = Breadthwise(*nodes[0], *nodes[20])
 	for _, n := range res {
 		fmt.Printf("-> %d ", n.id)
 	}
